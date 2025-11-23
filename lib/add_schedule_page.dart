@@ -129,10 +129,15 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               TextField(
                                 decoration: InputDecoration(
                                   hintText: '09/04/2024',
-                                  suffixIcon: Icon(Icons.calendar_today, size: 20),
+                                  suffixIcon: Icon(
+                                    Icons.calendar_today,
+                                    size: 20,
+                                  ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[300]!,
+                                    ),
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -159,10 +164,15 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               TextField(
                                 decoration: InputDecoration(
                                   hintText: '12/15/2024',
-                                  suffixIcon: Icon(Icons.calendar_today, size: 20),
+                                  suffixIcon: Icon(
+                                    Icons.calendar_today,
+                                    size: 20,
+                                  ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[300]!,
+                                    ),
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -196,7 +206,9 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                                   suffixIcon: Icon(Icons.access_time, size: 20),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[300]!,
+                                    ),
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -226,7 +238,9 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                                   suffixIcon: Icon(Icons.access_time, size: 20),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey[300]!,
+                                    ),
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -326,7 +340,8 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     TextField(
                       maxLines: 4,
                       decoration: InputDecoration(
-                        hintText: 'Outline the concept, features, and\ntechnology stack for the final project.',
+                        hintText:
+                            'Outline the concept, features, and\ntechnology stack for the final project.',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -517,7 +532,9 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected ? Color(0xFF03A9F4).withOpacity(0.05) : Colors.white,
+          color: isSelected
+              ? Color(0xFF03A9F4).withOpacity(0.05)
+              : Colors.white,
         ),
         child: Text(
           reminder,

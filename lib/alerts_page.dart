@@ -28,10 +28,7 @@ class _AlertsPageState extends State<AlertsPage> {
                 children: [
                   Text(
                     '9:41',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   Row(
                     children: [
@@ -50,17 +47,11 @@ class _AlertsPageState extends State<AlertsPage> {
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 'Alerts',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
               ),
             ),
             // Divider
-            Container(
-              height: 1,
-              color: Colors.grey[300],
-            ),
+            Container(height: 1, color: Colors.grey[300]),
             // Tabs
             Padding(
               padding: EdgeInsets.all(20),
@@ -78,9 +69,7 @@ class _AlertsPageState extends State<AlertsPage> {
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: _buildAlertsForTab(),
-                ),
+                child: Column(children: _buildAlertsForTab()),
               ),
             ),
             // Bottom Navigation
@@ -117,8 +106,18 @@ class _AlertsPageState extends State<AlertsPage> {
                         "Alerts",
                         true,
                       ),
-                      _buildNavItem(context, Icons.cloud_outlined, "Weather", false),
-                      _buildNavItem(context, Icons.settings_outlined, "Settings", false),
+                      _buildNavItem(
+                        context,
+                        Icons.cloud_outlined,
+                        "Weather",
+                        false,
+                      ),
+                      _buildNavItem(
+                        context,
+                        Icons.settings_outlined,
+                        "Settings",
+                        false,
+                      ),
                     ],
                   ),
                 ),
@@ -147,7 +146,9 @@ class _AlertsPageState extends State<AlertsPage> {
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(8),
-            color: isSelected ? Color(0xFF03A9F4).withOpacity(0.05) : Colors.white,
+            color: isSelected
+                ? Color(0xFF03A9F4).withOpacity(0.05)
+                : Colors.white,
           ),
           child: Text(
             label,
@@ -169,7 +170,8 @@ class _AlertsPageState extends State<AlertsPage> {
         _buildAlertItem(
           icon: Icons.list_alt,
           title: 'Intro to AI - Lecture',
-          subtitle: 'Lecture on Machine Learning basics. Don\'t forget your notes.',
+          subtitle:
+              'Lecture on Machine Learning basics. Don\'t forget your notes.',
           time: '10:00 AM',
           type: 'Class Reminder',
         ),
@@ -177,7 +179,8 @@ class _AlertsPageState extends State<AlertsPage> {
         _buildAlertItem(
           icon: Icons.assignment,
           title: 'AI Project Proposal',
-          subtitle: 'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
+          subtitle:
+              'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
           time: '04:00 PM',
           type: 'Assignment Due',
         ),
@@ -187,7 +190,8 @@ class _AlertsPageState extends State<AlertsPage> {
         _buildAlertItem(
           icon: Icons.list_alt,
           title: 'Intro to AI - Quiz',
-          subtitle: 'Quiz on Machine Learning basics. Don\'t forget to review your notes.',
+          subtitle:
+              'Quiz on Machine Learning basics. Don\'t forget to review your notes.',
           time: 'Wednesday\n10:00 AM',
           type: 'Class Reminder',
         ),
@@ -195,7 +199,8 @@ class _AlertsPageState extends State<AlertsPage> {
         _buildAlertItem(
           icon: Icons.assignment,
           title: 'Web App Prototype',
-          subtitle: 'Submit your project prototype by 11:59 PM. Review guidelines carefully.',
+          subtitle:
+              'Submit your project prototype by 11:59 PM. Review guidelines carefully.',
           time: 'Monday\n11:59 PM',
           type: 'Assignment Due',
         ),
@@ -203,7 +208,8 @@ class _AlertsPageState extends State<AlertsPage> {
         _buildAlertItem(
           icon: Icons.list_alt,
           title: 'Artificial Neural Networks Quiz',
-          subtitle: 'Quiz on Artificial Neural Networks Unit 3. Don\'t forget to review your notes.',
+          subtitle:
+              'Quiz on Artificial Neural Networks Unit 3. Don\'t forget to review your notes.',
           time: 'Thursday\n04:00 PM',
           type: 'Class Reminder',
         ),
@@ -213,7 +219,8 @@ class _AlertsPageState extends State<AlertsPage> {
         _buildAlertItem(
           icon: Icons.assignment,
           title: 'AI Project Proposal',
-          subtitle: 'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
+          subtitle:
+              'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
           time: 'Monday\n11:59 PM',
           type: 'Assignment Overdue',
           isOverdue: true,
@@ -222,7 +229,8 @@ class _AlertsPageState extends State<AlertsPage> {
         _buildAlertItem(
           icon: Icons.assignment,
           title: 'Software Engineering Activity',
-          subtitle: 'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
+          subtitle:
+              'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
           time: 'Friday\n11:59 PM',
           type: 'Assignment Overdue',
           isOverdue: true,
@@ -251,11 +259,7 @@ class _AlertsPageState extends State<AlertsPage> {
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 18,
-                color: Colors.grey[700],
-              ),
+              Icon(icon, size: 18, color: Colors.grey[700]),
               SizedBox(width: 8),
               Text(
                 type,
@@ -269,10 +273,7 @@ class _AlertsPageState extends State<AlertsPage> {
               Text(
                 time,
                 textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -335,7 +336,12 @@ class _AlertsPageState extends State<AlertsPage> {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, IconData icon, String label, bool isActive) {
+  Widget _buildNavItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    bool isActive,
+  ) {
     return Expanded(
       child: InkWell(
         onTap: () {

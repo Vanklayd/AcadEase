@@ -1,3 +1,6 @@
+import 'package:appdev_project/schedule_page.dart';
+import 'package:appdev_project/alerts_page.dart';
+import 'package:appdev_project/weather_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -7,1143 +10,470 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            // PUT PADDING TOP AND BOTTOM PLS THANK YOU
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 352,
-                  height: 44,
-                  child: Row(
+      home: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 480),
+          child: AcadEaseHome(),
+        ),
+      ),
+    );
+  }
+}
+
+class AcadEaseHome extends StatelessWidget {
+  const AcadEaseHome({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFFFFFFF),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header with App Name
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 16.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(width: 40), // Spacer for centering
+                  Text(
+                    "AcadEase",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  Row(
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(Icons.sunny, color: Colors.amber),
+                      Icon(
+                        Icons.notifications_outlined,
+                        size: 26,
+                        color: Colors.black,
                       ),
+                      SizedBox(width: 12),
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Colors.grey[400],
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
 
-                      SizedBox(width: 10),
+            // Divider line
+            Divider(color: Colors.grey[300], thickness: 1, height: 1),
 
-                      Column(
+            // Main Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Weather Card
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.cloud_outlined,
+                            color: Colors.white.withOpacity(0.9),
+                            size: 32,
+                          ),
+                          SizedBox(width: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "21°C",
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "Cloudy",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white.withOpacity(0.9),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 12),
+
+                    // Prioritize Study Session Card
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Color(0xF3FAFCFF),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 12,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Weather Hub",
-                            style: TextStyle(fontSize: 18, color: Colors.black),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Prioritize Study Session",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.track_changes, size: 20),
+                              ),
+                            ],
                           ),
+                          SizedBox(height: 12),
                           Text(
-                            "Campus comparison",
-                            style: TextStyle(fontSize: 12, color: Colors.black),
+                            "Your Math 101 midterm is next week. Plan for a 2-hour deep dive today.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              height: 1.5,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          // Progress Bar
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: LinearProgressIndicator(
+                              value: 0.5,
+                              backgroundColor: Colors.grey[300],
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.black87,
+                              ),
+                              minHeight: 8,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFE3F2FD),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "View Study Plan",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF1976D2),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      SizedBox(
-                        width: 120,
-                      ), // NEED TO BE CHANGED. EITHER PADDING OR SPACE BETWEEN
+                    ),
 
-                      Row(
-                        children: [
-                          Icon(Icons.sync, size: 20),
-                          SizedBox(width: 20),
-                          Icon(Icons.settings_outlined, size: 20),
-                        ],
+                    SizedBox(height: 22),
+
+                    // Today's Classes Header
+                    Text(
+                      "Today's Classes",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+
+                    SizedBox(height: 22),
+
+                    // Class 1 - Calculus I
+                    _buildClassCard(
+                      time: "10:00",
+                      period: "AM",
+                      title: "Calculus I (Math 101)",
+                      instructor: "Prof. Garcia | Room 305",
+                      type: "Lecture",
+                      isActive: true,
+                    ),
+
+                    SizedBox(height: 12),
+
+                    // Class 2 - Philippine History
+                    _buildClassCard(
+                      time: "01:30",
+                      period: "PM",
+                      title: "Philippine History",
+                      instructor: "Dr. Santos | Auditorium B",
+                      type: "Seminar",
+                      isActive: false,
+                    ),
+
+                    SizedBox(height: 12),
+
+                    // Class 3 - Introduction to Programming
+                    _buildClassCard(
+                      time: "03:00",
+                      period: "PM",
+                      title: "Introduction to Programming",
+                      instructor: "Ms. Reyes | Computer Lab 1",
+                      type: "Lab",
+                      isActive: false,
+                    ),
+
+                    SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+
+            // Bottom Navigation Bar
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildNavItem(context, Icons.home, "Home", true),
+                      _buildNavItem(
+                        context,
+                        Icons.calendar_today_outlined,
+                        "Schedule",
+                        false,
+                      ),
+                      _buildNavItem(
+                        context,
+                        Icons.notifications_outlined,
+                        "Alerts",
+                        false,
+                      ),
+                      _buildNavItem(
+                        context,
+                        Icons.cloud_outlined,
+                        "Weather",
+                        false,
+                      ),
+                      _buildNavItem(
+                        context,
+                        Icons.settings_outlined,
+                        "Settings",
+                        false,
                       ),
                     ],
                   ),
                 ),
-                Divider(color: Colors.black, thickness: 0.1),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
+  Widget _buildClassCard({
+    required String time,
+    required String period,
+    required String title,
+    required String instructor,
+    required String type,
+    required bool isActive,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Color(0xffFFFFFF),
+        border: Border.all(width: 0.1, color: Colors.grey),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          // Time Column
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                time,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                period,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(width: 18),
+          // Indicator Dot
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: isActive ? Colors.black : Colors.grey[400],
+              shape: BoxShape.circle,
+            ),
+          ),
+          SizedBox(width: 18),
+          // Class Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  instructor,
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                ),
                 SizedBox(height: 10),
-
                 Container(
-                  width: 352,
-                  height: 300,
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF4A90E2), // Light blue at top
-                        Color(0xFF2C5282), // Medium blue
-                        Color(0xFF1A365D), // Dark blue at bottom
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: [
-                        0.0,
-                        0.6,
-                        1.0,
-                      ], // Controls where each color appears
-                    ),
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Campus University",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "72°",
-                              style: TextStyle(
-                                fontSize: 48,
-                                // fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Rainy",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "Feels like 75°",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 60),
-
-                        Divider(color: Colors.white, thickness: 0.1),
-
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 8.0,
-                            left: 25,
-                            right: 25,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.water_drop_outlined,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "65%",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Humidity",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.air, color: Colors.white),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "8 mph",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Wind",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.device_thermostat,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "UV 3",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Index",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                  child: Text(
+                    type,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey[800],
                     ),
                   ),
                 ),
-
-                SizedBox(height: 16),
-
-                Container(
-                  width: 352,
-                  height: 160,
-                  decoration: BoxDecoration(
-                    color: Colors.green[100],
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      width: 1,
-                      color: const Color(0xFF66BB6A),
-                    ),
-                  ),
-
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.thumb_up_alt_outlined, size: 48),
-                            SizedBox(width: 20),
-                            Text(
-                              "Campus Buddy",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            SizedBox(width: 10),
-                            Container(
-                              height: 25,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 0.1,
-                                  color: Colors.black,
-                                ),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Friendly",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  width: 352,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 225, 225, 225),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      width: 1,
-                      color: const Color.fromARGB(255, 179, 179, 179),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 190, 190, 190),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(Icons.event_outlined),
-                        ),
-                        SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Computer Science 101",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "9:00 - Science Building, Room 201",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: 20),
-                        Container(
-                          height: 25,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 0.1, color: Colors.black),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Next",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-
-                Container(
-                  width: 352,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 1,
-                      color: const Color.fromARGB(255, 219, 219, 219),
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Daily Prep",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Container(
-                              width: 160,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.track_changes,
-                                    color: Colors.red,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    "Get ready for the day!",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 40),
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.grey[300]!,
-                              style: BorderStyle.solid,
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(45),
-                                ),
-                                child: Icon(
-                                  Icons.beach_access,
-                                  size: 24,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              SizedBox(width: 15),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Umbrella",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Drag umbrella to bag",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Spacer(),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Text(
-                                  "Pack!",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-
-                              SizedBox(height: 30),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: 40),
-
-                        Container(
-                          padding: EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            top: 12,
-                            bottom: 12,
-                          ),
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.lightbulb,
-                                size: 16,
-                                color: Colors.amber,
-                              ),
-                              SizedBox(width: 5),
-                              Text(
-                                "Pro Tip:",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              SizedBox(width: 5),
-                              Expanded(
-                                child: Text(
-                                  "Complete your daily prep to keep your campus buddy happy!",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 15),
-
-                Container(
-                  width: 352,
-                  height: 425,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 1,
-                      color: const Color.fromARGB(255, 219, 219, 219),
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Today's Schedule",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "14:37 PM",
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 50),
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          height: 140,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 230, 230, 230),
-                            border: Border.all(
-                              width: 1,
-                              color: Colors.grey[700]!,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    "Computer Science 101",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Container(
-                                    width: 42,
-                                    height: 21,
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[100],
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Next",
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.blue[800],
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    color: Colors.grey[600],
-                                    size: 14,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "9:00 AM",
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 4),
-                              // ...existing code...
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    color: Colors.grey[600],
-                                    size: 14,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "Science Building, Room 201",
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 6),
-                              Divider(color: Colors.grey[400], thickness: 1),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.directions_car,
-                                    color: Colors.grey[600],
-                                    size: 14,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "Leave by: ",
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  Text(
-                                    "8:45 AM",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 40),
-
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Study Group - Mathematics",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      "2:00 PM  •  Library, Study Room B",
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green[100],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  "meeting",
-                                  style: TextStyle(
-                                    color: Colors.green[700],
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 8),
-
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Campus Event - Tech Talk",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      "5:30 PM  •  Student Center Auditorium",
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.purple[100],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  "event",
-                                  style: TextStyle(
-                                    color: Colors.purple[700],
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 15),
-
-                // Smart Alerts Container
-                Container(
-                  width: 352,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 1,
-                      color: const Color.fromARGB(255, 219, 219, 219),
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Smart Alerts",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                "3 new",
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-
-                        // Good morning alert
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.red[50],
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border(
-                              left: BorderSide(color: Colors.red, width: 4),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.notifications_outlined,
-                                    size: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "Good morning! ☀️",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "7:00 AM",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Today's weather is rainy. You have Computer Science 101 at 9:00 AM, traffic starts around 7:30, leave before 7:15.",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Got it!",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 12),
-
-                        // Traffic alert
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.orange[50],
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border(
-                              left: BorderSide(color: Colors.orange, width: 4),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.directions_car_outlined,
-                                    size: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "Traffic Alert 🚗",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "7:25 AM",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Traffic is building up on your usual route. Consider leaving 10 minutes earlier.",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Check Route",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 12),
-
-                        // Weather update
-                        Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.green[50],
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border(
-                              left: BorderSide(color: Colors.green, width: 4),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.notifications_outlined,
-                                    size: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "Weather Update ⛅",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    "Now",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Perfect weather conditions today!",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Thanks!",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 16),
-
-                        // Bottom note
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.lightbulb_outline,
-                              size: 16,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                "Smart notifications learn from your schedule and preferences.",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 15),
-
-                // Summary Cards Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Classes Today Card
-                    Container(
-                      width: 168,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          width: 1,
-                          color: const Color.fromARGB(255, 219, 219, 219),
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "1",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            SizedBox(height: 3),
-                            Text(
-                              "Classes Today",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(width: 15),
-
-                    // Prep Done Card
-                    Container(
-                      width: 168,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          width: 1,
-                          color: const Color.fromARGB(255, 219, 219, 219),
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "25%",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            SizedBox(height: 3),
-                            Text(
-                              "Prep Done",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 20), // Add some bottom padding
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    bool isActive,
+  ) {
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          if (label == "Schedule" && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => SchedulePage()),
+            );
+          } else if (label == "Alerts" && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => AlertsPage()),
+            );
+          } else if (label == "Weather" && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => WeatherPage()),
+            );
+          } else if (label == "Home" && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => AcadEaseHome()),
+            );
+          }
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                size: 26,
+              ),
+              SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ],
           ),
         ),
       ),
