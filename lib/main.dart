@@ -27,6 +27,70 @@ class MyApp extends StatelessWidget {
 class AcadEaseHome extends StatelessWidget {
   const AcadEaseHome({super.key});
 
+  // Sample subjects pool (same as schedule_page.dart)
+  final List<Map<String, dynamic>> subjectPool = const [
+    {'title': 'Operating Systems', 'instructor': 'Prof. J. Cruz', 'location': 'CS Lab 201'},
+    {'title': 'Discrete Mathematics', 'instructor': 'Dr. M. Garcia', 'location': 'Rm 305'},
+    {'title': 'Data Structures', 'instructor': 'Engr. R. Santos', 'location': 'Lecture Hall 1'},
+    {'title': 'Web Development', 'instructor': 'Prof. A. Reyes', 'location': 'IT Lab 102'},
+    {'title': 'Database Systems', 'instructor': 'Dr. L. Torres', 'location': 'Rm 210'},
+    {'title': 'Computer Networks', 'instructor': 'Engr. P. Mendoza', 'location': 'CS Lab 203'},
+    {'title': 'Software Engineering', 'instructor': 'Prof. K. Villanueva', 'location': 'Rm 401'},
+    {'title': 'Mobile Development', 'instructor': 'Dr. S. Castillo', 'location': 'IT Lab 105'},
+    {'title': 'Machine Learning', 'instructor': 'Prof. D. Ramos', 'location': 'AI Lab 301'},
+    {'title': 'Artificial Intelligence', 'instructor': 'Dr. R. Flores', 'location': 'AI Lab 302'},
+  ];
+
+  final List<String> tags = const ['Weekly', 'MWF', 'TTH', 'Daily'];
+  final List<String> types = const ['Lecture', 'Lab', 'Seminar', 'Workshop'];
+  final List<String> times = const [
+    '9:00 AM - 10:30 AM',
+    '11:00 AM - 12:00 PM',
+    '1:00 PM - 2:30 PM',
+    '2:00 PM - 3:30 PM',
+    '3:00 PM - 4:30 PM',
+    '4:00 PM - 5:30 PM',
+  ];
+
+  List<Map<String, dynamic>> _getScheduleForDay(DateTime date) {
+    // Generate deterministic random schedule based on date
+    int seed = date.year * 10000 + date.month * 100 + date.day;
+    // Number of classes for the day (2-4 classes)
+    int classCount = (seed % 3) + 2;
+    
+    List<Map<String, dynamic>> schedule = [];
+    List<int> usedTimeSlots = [];
+    
+    for (int i = 0; i < classCount; i++) {
+      int subjectIndex = (seed + i * 7) % subjectPool.length;
+      int timeSlotIndex = (seed + i * 3) % times.length;
+      
+      // Avoid duplicate time slots
+      while (usedTimeSlots.contains(timeSlotIndex)) {
+        timeSlotIndex = (timeSlotIndex + 1) % times.length;
+      }
+      usedTimeSlots.add(timeSlotIndex);
+      
+      int tagIndex = (seed + i * 5) % tags.length;
+      int typeIndex = (seed + i * 11) % types.length;
+      
+      Map<String, dynamic> subject = subjectPool[subjectIndex];
+      schedule.add({
+        'timeSlot': timeSlotIndex,
+        'title': subject['title'],
+        'instructor': subject['instructor'],
+        'location': subject['location'],
+        'time': times[timeSlotIndex],
+        'tag': tags[tagIndex],
+        'type': types[typeIndex],
+      });
+    }
+    
+    // Sort by time slot
+    schedule.sort((a, b) => a['timeSlot'].compareTo(b['timeSlot']));
+    return schedule;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,39 +298,8 @@ class AcadEaseHome extends StatelessWidget {
 
                     SizedBox(height: 22),
 
-                    // Class 1 - Calculus I
-                    _buildClassCard(
-                      time: "10:00",
-                      period: "AM",
-                      title: "Calculus I (Math 101)",
-                      instructor: "Prof. Garcia | Room 305",
-                      type: "Lecture",
-                      isActive: true,
-                    ),
-
-                    SizedBox(height: 12),
-
-                    // Class 2 - Philippine History
-                    _buildClassCard(
-                      time: "01:30",
-                      period: "PM",
-                      title: "Philippine History",
-                      instructor: "Dr. Santos | Auditorium B",
-                      type: "Seminar",
-                      isActive: false,
-                    ),
-
-                    SizedBox(height: 12),
-
-                    // Class 3 - Introduction to Programming
-                    _buildClassCard(
-                      time: "03:00",
-                      period: "PM",
-                      title: "Introduction to Programming",
-                      instructor: "Ms. Reyes | Computer Lab 1",
-                      type: "Lab",
-                      isActive: false,
-                    ),
+                    // Today's Classes - Dynamic
+                    ..._buildTodayClasses(),
 
                     SizedBox(height: 24),
                   ],
@@ -329,6 +362,41 @@ class AcadEaseHome extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildTodayClasses() {
+    DateTime today = DateTime.now();
+    List<Map<String, dynamic>> todaySchedule = _getScheduleForDay(today);
+    
+    List<Widget> classWidgets = [];
+    
+    for (int i = 0; i < todaySchedule.length; i++) {
+      var classItem = todaySchedule[i];
+      String fullTime = classItem['time'];
+      
+      // Parse time (e.g., "9:00 AM - 10:30 AM")
+      String startTime = fullTime.split(' - ')[0];
+      List<String> timeParts = startTime.split(' ');
+      String time = timeParts[0];
+      String period = timeParts[1];
+      
+      classWidgets.add(
+        _buildClassCard(
+          time: time,
+          period: period,
+          title: classItem['title'],
+          instructor: '${classItem['instructor']} | ${classItem['location']}',
+          type: classItem['type'],
+          isActive: i == 0, // First class is active
+        ),
+      );
+      
+      if (i < todaySchedule.length - 1) {
+        classWidgets.add(SizedBox(height: 12));
+      }
+    }
+    
+    return classWidgets;
   }
 
   Widget _buildClassCard({

@@ -12,6 +12,34 @@ class AlertsPage extends StatefulWidget {
 
 class _AlertsPageState extends State<AlertsPage> {
   String selectedTab = 'Today';
+  List<String> completedAlerts = [];
+  List<String> snoozedAlerts = [];
+
+  void _markAsDone(String alertId) {
+    setState(() {
+      completedAlerts.add(alertId);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Task marked as complete!'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _snoozeAlert(String alertId) {
+    setState(() {
+      snoozedAlerts.add(alertId);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Alert snoozed for 1 hour'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.orange,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,57 +194,74 @@ class _AlertsPageState extends State<AlertsPage> {
 
   List<Widget> _buildAlertsForTab() {
     if (selectedTab == 'Today') {
-      return [
-        _buildAlertItem(
+      List<Widget> alerts = [];
+      if (!completedAlerts.contains('today_lecture') && !snoozedAlerts.contains('today_lecture')) {
+        alerts.add(_buildAlertItem(
+          alertId: 'today_lecture',
           icon: Icons.list_alt,
           title: 'Intro to AI - Lecture',
           subtitle:
               'Lecture on Machine Learning basics. Don\'t forget your notes.',
           time: '10:00 AM',
           type: 'Class Reminder',
-        ),
-        SizedBox(height: 16),
-        _buildAlertItem(
+        ));
+        alerts.add(SizedBox(height: 16));
+      }
+      if (!completedAlerts.contains('today_assignment') && !snoozedAlerts.contains('today_assignment')) {
+        alerts.add(_buildAlertItem(
+          alertId: 'today_assignment',
           icon: Icons.assignment,
           title: 'AI Project Proposal',
           subtitle:
               'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
           time: '04:00 PM',
           type: 'Assignment Due',
-        ),
-      ];
+        ));
+      }
+      return alerts.isEmpty ? [Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No alerts for today', style: TextStyle(color: Colors.grey[600]))))] : alerts;
     } else if (selectedTab == 'This Week') {
-      return [
-        _buildAlertItem(
+      List<Widget> alerts = [];
+      if (!completedAlerts.contains('week_quiz') && !snoozedAlerts.contains('week_quiz')) {
+        alerts.add(_buildAlertItem(
+          alertId: 'week_quiz',
           icon: Icons.list_alt,
           title: 'Intro to AI - Quiz',
           subtitle:
               'Quiz on Machine Learning basics. Don\'t forget to review your notes.',
           time: 'Wednesday\n10:00 AM',
           type: 'Class Reminder',
-        ),
-        SizedBox(height: 16),
-        _buildAlertItem(
+        ));
+        alerts.add(SizedBox(height: 16));
+      }
+      if (!completedAlerts.contains('week_prototype') && !snoozedAlerts.contains('week_prototype')) {
+        alerts.add(_buildAlertItem(
+          alertId: 'week_prototype',
           icon: Icons.assignment,
           title: 'Web App Prototype',
           subtitle:
               'Submit your project prototype by 11:59 PM. Review guidelines carefully.',
           time: 'Monday\n11:59 PM',
           type: 'Assignment Due',
-        ),
-        SizedBox(height: 16),
-        _buildAlertItem(
+        ));
+        alerts.add(SizedBox(height: 16));
+      }
+      if (!completedAlerts.contains('week_ann_quiz') && !snoozedAlerts.contains('week_ann_quiz')) {
+        alerts.add(_buildAlertItem(
+          alertId: 'week_ann_quiz',
           icon: Icons.list_alt,
           title: 'Artificial Neural Networks Quiz',
           subtitle:
               'Quiz on Artificial Neural Networks Unit 3. Don\'t forget to review your notes.',
           time: 'Thursday\n04:00 PM',
           type: 'Class Reminder',
-        ),
-      ];
+        ));
+      }
+      return alerts.isEmpty ? [Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No alerts this week', style: TextStyle(color: Colors.grey[600]))))] : alerts;
     } else {
-      return [
-        _buildAlertItem(
+      List<Widget> alerts = [];
+      if (!completedAlerts.contains('missed_proposal') && !snoozedAlerts.contains('missed_proposal')) {
+        alerts.add(_buildAlertItem(
+          alertId: 'missed_proposal',
           icon: Icons.assignment,
           title: 'AI Project Proposal',
           subtitle:
@@ -224,9 +269,12 @@ class _AlertsPageState extends State<AlertsPage> {
           time: 'Monday\n11:59 PM',
           type: 'Assignment Overdue',
           isOverdue: true,
-        ),
-        SizedBox(height: 16),
-        _buildAlertItem(
+        ));
+        alerts.add(SizedBox(height: 16));
+      }
+      if (!completedAlerts.contains('missed_activity') && !snoozedAlerts.contains('missed_activity')) {
+        alerts.add(_buildAlertItem(
+          alertId: 'missed_activity',
           icon: Icons.assignment,
           title: 'Software Engineering Activity',
           subtitle:
@@ -234,12 +282,14 @@ class _AlertsPageState extends State<AlertsPage> {
           time: 'Friday\n11:59 PM',
           type: 'Assignment Overdue',
           isOverdue: true,
-        ),
-      ];
+        ));
+      }
+      return alerts.isEmpty ? [Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No missed tasks', style: TextStyle(color: Colors.grey[600]))))] : alerts;
     }
   }
 
   Widget _buildAlertItem({
+    required String alertId,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -300,7 +350,7 @@ class _AlertsPageState extends State<AlertsPage> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _markAsDone(alertId),
                   icon: Icon(Icons.check_circle_outline, size: 18),
                   label: Text('Mark as Done'),
                   style: ElevatedButton.styleFrom(
@@ -316,7 +366,7 @@ class _AlertsPageState extends State<AlertsPage> {
               SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _snoozeAlert(alertId),
                   icon: Icon(Icons.access_time, size: 18),
                   label: Text('Snooze'),
                   style: OutlinedButton.styleFrom(
