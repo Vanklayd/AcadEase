@@ -195,96 +195,153 @@ class _AlertsPageState extends State<AlertsPage> {
   List<Widget> _buildAlertsForTab() {
     if (selectedTab == 'Today') {
       List<Widget> alerts = [];
-      if (!completedAlerts.contains('today_lecture') && !snoozedAlerts.contains('today_lecture')) {
-        alerts.add(_buildAlertItem(
-          alertId: 'today_lecture',
-          icon: Icons.list_alt,
-          title: 'Intro to AI - Lecture',
-          subtitle:
-              'Lecture on Machine Learning basics. Don\'t forget your notes.',
-          time: '10:00 AM',
-          type: 'Class Reminder',
-        ));
+      if (!completedAlerts.contains('today_lecture') &&
+          !snoozedAlerts.contains('today_lecture')) {
+        alerts.add(
+          _buildAlertItem(
+            alertId: 'today_lecture',
+            icon: Icons.list_alt,
+            title: 'Intro to AI - Lecture',
+            subtitle:
+                'Lecture on Machine Learning basics. Don\'t forget your notes.',
+            time: '10:00 AM',
+            type: 'Class Reminder',
+          ),
+        );
         alerts.add(SizedBox(height: 16));
       }
-      if (!completedAlerts.contains('today_assignment') && !snoozedAlerts.contains('today_assignment')) {
-        alerts.add(_buildAlertItem(
-          alertId: 'today_assignment',
-          icon: Icons.assignment,
-          title: 'AI Project Proposal',
-          subtitle:
-              'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
-          time: '04:00 PM',
-          type: 'Assignment Due',
-        ));
+      if (!completedAlerts.contains('today_assignment') &&
+          !snoozedAlerts.contains('today_assignment')) {
+        alerts.add(
+          _buildAlertItem(
+            alertId: 'today_assignment',
+            icon: Icons.assignment,
+            title: 'AI Project Proposal',
+            subtitle:
+                'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
+            time: '04:00 PM',
+            type: 'Assignment Due',
+          ),
+        );
       }
-      return alerts.isEmpty ? [Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No alerts for today', style: TextStyle(color: Colors.grey[600]))))] : alerts;
+      return alerts.isEmpty
+          ? [
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Text(
+                    'No alerts for today',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
+              ),
+            ]
+          : alerts;
     } else if (selectedTab == 'This Week') {
       List<Widget> alerts = [];
-      if (!completedAlerts.contains('week_quiz') && !snoozedAlerts.contains('week_quiz')) {
-        alerts.add(_buildAlertItem(
-          alertId: 'week_quiz',
-          icon: Icons.list_alt,
-          title: 'Intro to AI - Quiz',
-          subtitle:
-              'Quiz on Machine Learning basics. Don\'t forget to review your notes.',
-          time: 'Wednesday\n10:00 AM',
-          type: 'Class Reminder',
-        ));
+      if (!completedAlerts.contains('week_quiz') &&
+          !snoozedAlerts.contains('week_quiz')) {
+        alerts.add(
+          _buildAlertItem(
+            alertId: 'week_quiz',
+            icon: Icons.list_alt,
+            title: 'Intro to AI - Quiz',
+            subtitle:
+                'Quiz on Machine Learning basics. Don\'t forget to review your notes.',
+            time: 'Wednesday\n10:00 AM',
+            type: 'Class Reminder',
+          ),
+        );
         alerts.add(SizedBox(height: 16));
       }
-      if (!completedAlerts.contains('week_prototype') && !snoozedAlerts.contains('week_prototype')) {
-        alerts.add(_buildAlertItem(
-          alertId: 'week_prototype',
-          icon: Icons.assignment,
-          title: 'Web App Prototype',
-          subtitle:
-              'Submit your project prototype by 11:59 PM. Review guidelines carefully.',
-          time: 'Monday\n11:59 PM',
-          type: 'Assignment Due',
-        ));
+      if (!completedAlerts.contains('week_prototype') &&
+          !snoozedAlerts.contains('week_prototype')) {
+        alerts.add(
+          _buildAlertItem(
+            alertId: 'week_prototype',
+            icon: Icons.assignment,
+            title: 'Web App Prototype',
+            subtitle:
+                'Submit your project prototype by 11:59 PM. Review guidelines carefully.',
+            time: 'Monday\n11:59 PM',
+            type: 'Assignment Due',
+          ),
+        );
         alerts.add(SizedBox(height: 16));
       }
-      if (!completedAlerts.contains('week_ann_quiz') && !snoozedAlerts.contains('week_ann_quiz')) {
-        alerts.add(_buildAlertItem(
-          alertId: 'week_ann_quiz',
-          icon: Icons.list_alt,
-          title: 'Artificial Neural Networks Quiz',
-          subtitle:
-              'Quiz on Artificial Neural Networks Unit 3. Don\'t forget to review your notes.',
-          time: 'Thursday\n04:00 PM',
-          type: 'Class Reminder',
-        ));
+      if (!completedAlerts.contains('week_ann_quiz') &&
+          !snoozedAlerts.contains('week_ann_quiz')) {
+        alerts.add(
+          _buildAlertItem(
+            alertId: 'week_ann_quiz',
+            icon: Icons.list_alt,
+            title: 'Artificial Neural Networks Quiz',
+            subtitle:
+                'Quiz on Artificial Neural Networks Unit 3. Don\'t forget to review your notes.',
+            time: 'Thursday\n04:00 PM',
+            type: 'Class Reminder',
+          ),
+        );
       }
-      return alerts.isEmpty ? [Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No alerts this week', style: TextStyle(color: Colors.grey[600]))))] : alerts;
+      return alerts.isEmpty
+          ? [
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Text(
+                    'No alerts this week',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
+              ),
+            ]
+          : alerts;
     } else {
       List<Widget> alerts = [];
-      if (!completedAlerts.contains('missed_proposal') && !snoozedAlerts.contains('missed_proposal')) {
-        alerts.add(_buildAlertItem(
-          alertId: 'missed_proposal',
-          icon: Icons.assignment,
-          title: 'AI Project Proposal',
-          subtitle:
-              'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
-          time: 'Monday\n11:59 PM',
-          type: 'Assignment Overdue',
-          isOverdue: true,
-        ));
+      if (!completedAlerts.contains('missed_proposal') &&
+          !snoozedAlerts.contains('missed_proposal')) {
+        alerts.add(
+          _buildAlertItem(
+            alertId: 'missed_proposal',
+            icon: Icons.assignment,
+            title: 'AI Project Proposal',
+            subtitle:
+                'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
+            time: 'Monday\n11:59 PM',
+            type: 'Assignment Overdue',
+            isOverdue: true,
+          ),
+        );
         alerts.add(SizedBox(height: 16));
       }
-      if (!completedAlerts.contains('missed_activity') && !snoozedAlerts.contains('missed_activity')) {
-        alerts.add(_buildAlertItem(
-          alertId: 'missed_activity',
-          icon: Icons.assignment,
-          title: 'Software Engineering Activity',
-          subtitle:
-              'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
-          time: 'Friday\n11:59 PM',
-          type: 'Assignment Overdue',
-          isOverdue: true,
-        ));
+      if (!completedAlerts.contains('missed_activity') &&
+          !snoozedAlerts.contains('missed_activity')) {
+        alerts.add(
+          _buildAlertItem(
+            alertId: 'missed_activity',
+            icon: Icons.assignment,
+            title: 'Software Engineering Activity',
+            subtitle:
+                'Submit your project proposal by 11:59 PM. Review guidelines carefully.',
+            time: 'Friday\n11:59 PM',
+            type: 'Assignment Overdue',
+            isOverdue: true,
+          ),
+        );
       }
-      return alerts.isEmpty ? [Center(child: Padding(padding: EdgeInsets.all(40), child: Text('No missed tasks', style: TextStyle(color: Colors.grey[600]))))] : alerts;
+      return alerts.isEmpty
+          ? [
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Text(
+                    'No missed tasks',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
+              ),
+            ]
+          : alerts;
     }
   }
 

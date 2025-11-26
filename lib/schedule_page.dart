@@ -21,16 +21,56 @@ class _SchedulePageState extends State<SchedulePage> {
 
   // Sample subjects pool
   final List<Map<String, dynamic>> subjectPool = [
-    {'title': 'Operating Systems', 'instructor': 'Prof. J. Cruz', 'location': 'CS Lab 201'},
-    {'title': 'Discrete Mathematics', 'instructor': 'Dr. M. Garcia', 'location': 'Rm 305'},
-    {'title': 'Data Structures', 'instructor': 'Engr. R. Santos', 'location': 'Lecture Hall 1'},
-    {'title': 'Web Development', 'instructor': 'Prof. A. Reyes', 'location': 'IT Lab 102'},
-    {'title': 'Database Systems', 'instructor': 'Dr. L. Torres', 'location': 'Rm 210'},
-    {'title': 'Computer Networks', 'instructor': 'Engr. P. Mendoza', 'location': 'CS Lab 203'},
-    {'title': 'Software Engineering', 'instructor': 'Prof. K. Villanueva', 'location': 'Rm 401'},
-    {'title': 'Mobile Development', 'instructor': 'Dr. S. Castillo', 'location': 'IT Lab 105'},
-    {'title': 'Machine Learning', 'instructor': 'Prof. D. Ramos', 'location': 'AI Lab 301'},
-    {'title': 'Artificial Intelligence', 'instructor': 'Dr. R. Flores', 'location': 'AI Lab 302'},
+    {
+      'title': 'Operating Systems',
+      'instructor': 'Prof. J. Cruz',
+      'location': 'CS Lab 201',
+    },
+    {
+      'title': 'Discrete Mathematics',
+      'instructor': 'Dr. M. Garcia',
+      'location': 'Rm 305',
+    },
+    {
+      'title': 'Data Structures',
+      'instructor': 'Engr. R. Santos',
+      'location': 'Lecture Hall 1',
+    },
+    {
+      'title': 'Web Development',
+      'instructor': 'Prof. A. Reyes',
+      'location': 'IT Lab 102',
+    },
+    {
+      'title': 'Database Systems',
+      'instructor': 'Dr. L. Torres',
+      'location': 'Rm 210',
+    },
+    {
+      'title': 'Computer Networks',
+      'instructor': 'Engr. P. Mendoza',
+      'location': 'CS Lab 203',
+    },
+    {
+      'title': 'Software Engineering',
+      'instructor': 'Prof. K. Villanueva',
+      'location': 'Rm 401',
+    },
+    {
+      'title': 'Mobile Development',
+      'instructor': 'Dr. S. Castillo',
+      'location': 'IT Lab 105',
+    },
+    {
+      'title': 'Machine Learning',
+      'instructor': 'Prof. D. Ramos',
+      'location': 'AI Lab 301',
+    },
+    {
+      'title': 'Artificial Intelligence',
+      'instructor': 'Dr. R. Flores',
+      'location': 'AI Lab 302',
+    },
   ];
 
   final List<String> tags = ['Weekly', 'MWF', 'TTH', 'Daily'];
@@ -71,22 +111,22 @@ class _SchedulePageState extends State<SchedulePage> {
     int seed = date.year * 10000 + date.month * 100 + date.day;
     // Number of classes for the day (2-4 classes)
     int classCount = (seed % 3) + 2;
-    
+
     List<Map<String, dynamic>> schedule = [];
     List<int> usedTimeSlots = [];
-    
+
     for (int i = 0; i < classCount; i++) {
       int subjectIndex = (seed + i * 7) % subjectPool.length;
       int timeSlotIndex = (seed + i * 3) % times.length;
-      
+
       // Avoid duplicate time slots
       while (usedTimeSlots.contains(timeSlotIndex)) {
         timeSlotIndex = (timeSlotIndex + 1) % times.length;
       }
       usedTimeSlots.add(timeSlotIndex);
-      
+
       int tagIndex = (seed + i * 5) % tags.length;
-      
+
       Map<String, dynamic> subject = subjectPool[subjectIndex];
       schedule.add({
         'timeSlot': timeSlotIndex,
@@ -95,10 +135,12 @@ class _SchedulePageState extends State<SchedulePage> {
         'location': subject['location'],
         'time': times[timeSlotIndex],
         'tag': tags[tagIndex],
-        'note': (seed + i) % 5 == 0 ? 'Don\'t forget your project submission!' : null,
+        'note': (seed + i) % 5 == 0
+            ? 'Don\'t forget your project submission!'
+            : null,
       });
     }
-    
+
     // Sort by time slot
     schedule.sort((a, b) => a['timeSlot'].compareTo(b['timeSlot']));
     return schedule;
@@ -195,19 +237,30 @@ class _SchedulePageState extends State<SchedulePage> {
                         constraints: BoxConstraints(),
                       ),
                       ...List.generate(5, (index) {
-                        DateTime date = currentWeekStart.add(Duration(days: index));
-                        String dayName = DateFormat('EEE').format(date).substring(0, 3);
+                        DateTime date = currentWeekStart.add(
+                          Duration(days: index),
+                        );
+                        String dayName = DateFormat(
+                          'EEE',
+                        ).format(date).substring(0, 3);
                         return GestureDetector(
                           onTap: () {
                             setState(() {
                               selectedDay = date.day;
                             });
                           },
-                          child: _buildDayItem(dayName, date.day, date.day == selectedDay),
+                          child: _buildDayItem(
+                            dayName,
+                            date.day,
+                            date.day == selectedDay,
+                          ),
                         );
                       }),
                       IconButton(
-                        icon: Icon(Icons.chevron_right, color: Colors.grey[600]),
+                        icon: Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey[600],
+                        ),
                         onPressed: () => _navigateWeek(1),
                         padding: EdgeInsets.zero,
                         constraints: BoxConstraints(),
@@ -224,22 +277,27 @@ class _SchedulePageState extends State<SchedulePage> {
                   child: Builder(
                     builder: (context) {
                       DateTime selectedDate = currentWeekStart.add(
-                        Duration(days: List.generate(5, (i) => i).firstWhere(
-                          (i) => currentWeekStart.add(Duration(days: i)).day == selectedDay,
-                          orElse: () => 0,
-                        ))
+                        Duration(
+                          days: List.generate(5, (i) => i).firstWhere(
+                            (i) =>
+                                currentWeekStart.add(Duration(days: i)).day ==
+                                selectedDay,
+                            orElse: () => 0,
+                          ),
+                        ),
                       );
-                      List<Map<String, dynamic>> daySchedule = _getScheduleForDay(selectedDate);
-                      
+                      List<Map<String, dynamic>> daySchedule =
+                          _getScheduleForDay(selectedDate);
+
                       // Build time slots from 8 AM to 8 PM
                       List<Widget> timeSlots = [];
                       Map<int, Map<String, dynamic>> classMap = {};
-                      
+
                       // Map classes to their time slot indices
                       for (var classItem in daySchedule) {
                         classMap[classItem['timeSlot']] = classItem;
                       }
-                      
+
                       // Generate time slots
                       List<String> allTimeSlots = [
                         '8:00 AM',
@@ -256,7 +314,7 @@ class _SchedulePageState extends State<SchedulePage> {
                         '7:00 PM',
                         '8:00 PM',
                       ];
-                      
+
                       for (int i = 0; i < allTimeSlots.length; i++) {
                         // Check if there's a class starting at this hour
                         Map<String, dynamic>? matchingClass;
@@ -266,7 +324,7 @@ class _SchedulePageState extends State<SchedulePage> {
                             break;
                           }
                         }
-                        
+
                         if (matchingClass != null) {
                           timeSlots.add(
                             _buildTimeSlot(
@@ -285,10 +343,13 @@ class _SchedulePageState extends State<SchedulePage> {
                           timeSlots.add(_buildTimeSlot(allTimeSlots[i], null));
                         }
                       }
-                      
+
                       return ListView(
                         controller: _scrollController,
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
                         children: timeSlots,
                       );
                     },
