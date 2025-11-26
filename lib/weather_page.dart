@@ -13,7 +13,7 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  final WeatherFactory _wf = WeatherFactory("856822fd8e22db5e1ba48c0e7d69844a");
+  final WeatherFactory _wf = WeatherFactory("ffce7850163c676d026a180b54c809a8");
   Weather? _weather;
   bool _isLoading = true;
 

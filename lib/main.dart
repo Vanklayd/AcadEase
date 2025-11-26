@@ -34,7 +34,7 @@ class AcadEaseHome extends StatefulWidget {
 }
 
 class _AcadEaseHomeState extends State<AcadEaseHome> {
-  final WeatherFactory _wf = WeatherFactory("856822fd8e22db5e1ba48c0e7d69844a");
+  final WeatherFactory _wf = WeatherFactory("ffce7850163c676d026a180b54c809a8");
   Weather? _weather;
   bool _isLoadingWeather = true;
   String? _weatherError;
@@ -69,7 +69,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
     if (_weather == null) return "🌤️";
     String? main = _weather!.weatherMain?.toLowerCase();
     if (main == null) return "🌤️";
-    
+
     if (main.contains('cloud')) return "☁️";
     if (main.contains('rain')) return "🌧️";
     if (main.contains('clear')) return "☀️";
@@ -245,13 +245,15 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                   children: [
                     // Weather Card
                     GestureDetector(
-                      onTap: _weatherError != null ? () {
-                        setState(() {
-                          _isLoadingWeather = true;
-                          _weatherError = null;
-                        });
-                        _fetchWeather();
-                      } : null,
+                      onTap: _weatherError != null
+                          ? () {
+                              setState(() {
+                                _isLoadingWeather = true;
+                                _weatherError = null;
+                              });
+                              _fetchWeather();
+                            }
+                          : null,
                       child: Container(
                         width: double.infinity,
                         padding: EdgeInsets.symmetric(
@@ -266,78 +268,82 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                           ),
                           borderRadius: BorderRadius.circular(24),
                         ),
-                      child: _isLoadingWeather
-                          ? Center(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            )
-                          : _weatherError != null
-                              ? Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.cloud_off,
-                                        color: Colors.white.withOpacity(0.9),
-                                        size: 32,
-                                      ),
-                                      SizedBox(width: 16),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Weather Unavailable",
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Tap to retry",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white.withOpacity(0.8),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                        child: _isLoadingWeather
+                            ? Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
                                   ),
-                                )
-                              : Row(
+                                ),
+                              )
+                            : _weatherError != null
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Row(
                                   children: [
-                                    Text(
-                                      _getWeatherIcon(),
-                                      style: TextStyle(fontSize: 32),
+                                    Icon(
+                                      Icons.cloud_off,
+                                      color: Colors.white.withOpacity(0.9),
+                                      size: 32,
                                     ),
                                     SizedBox(width: 16),
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "${_weather!.temperature!.celsius!.round()}°C",
+                                          "Weather Unavailable",
                                           style: TextStyle(
-                                            fontSize: 32,
+                                            fontSize: 20,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
                                         ),
                                         Text(
-                                          _weather!.weatherDescription ?? "N/A",
+                                          "Tap to retry",
                                           style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.white.withOpacity(0.9),
+                                            fontSize: 14,
+                                            color: Colors.white.withOpacity(
+                                              0.8,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
+                              )
+                            : Row(
+                                children: [
+                                  Text(
+                                    _getWeatherIcon(),
+                                    style: TextStyle(fontSize: 32),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${_weather!.temperature!.celsius!.round()}°C",
+                                        style: TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        _weather!.weatherDescription ?? "N/A",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.white.withOpacity(0.9),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
 
@@ -527,14 +533,26 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
       List<String> times = timeRange.split(' - ');
       String startTimeStr = times[0];
       String endTimeStr = times[1];
-      
+
       DateTime startTime = DateFormat('h:mm a').parse(startTimeStr);
       DateTime endTime = DateFormat('h:mm a').parse(endTimeStr);
-      
+
       // Combine with today's date
-      DateTime classStart = DateTime(now.year, now.month, now.day, startTime.hour, startTime.minute);
-      DateTime classEnd = DateTime(now.year, now.month, now.day, endTime.hour, endTime.minute);
-      
+      DateTime classStart = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        startTime.hour,
+        startTime.minute,
+      );
+      DateTime classEnd = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        endTime.hour,
+        endTime.minute,
+      );
+
       // Check if current time is within class time
       return now.isAfter(classStart) && now.isBefore(classEnd);
     } catch (e) {
@@ -586,8 +604,14 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
         String startTime = classItem['time'].split(' - ')[0];
         try {
           DateTime classStart = DateFormat('h:mm a').parse(startTime);
-          DateTime classStartFull = DateTime(now.year, now.month, now.day, classStart.hour, classStart.minute);
-          
+          DateTime classStartFull = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            classStart.hour,
+            classStart.minute,
+          );
+
           if (now.isBefore(classStartFull)) {
             // Rebuild this class card as active
             List<String> timeParts = startTime.split(' ');
@@ -595,7 +619,8 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
               time: timeParts[0],
               period: timeParts[1],
               title: classItem['title'],
-              instructor: '${classItem['instructor']} | ${classItem['location']}',
+              instructor:
+                  '${classItem['instructor']} | ${classItem['location']}',
               type: classItem['type'],
               isActive: true,
             );
