@@ -2,6 +2,7 @@ import 'package:appdev_project/schedule_page.dart';
 import 'package:appdev_project/alerts_page.dart';
 import 'package:appdev_project/weather_page.dart';
 import 'package:flutter/material.dart';
+import 'screens/map_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,296 +33,322 @@ class AcadEaseHome extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFFFFFFF),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // Header with App Name
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 16.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(width: 40), // Spacer for centering
-                  Text(
-                    "AcadEase",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.black,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.notifications_outlined,
-                        size: 26,
-                        color: Colors.black,
-                      ),
-                      SizedBox(width: 12),
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.grey[400],
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Divider line
-            Divider(color: Colors.grey[300], thickness: 1, height: 1),
-
-            // Main Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Weather Card
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.cloud_outlined,
-                            color: Colors.white.withOpacity(0.9),
-                            size: 32,
-                          ),
-                          SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "21°C",
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                "Cloudy",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white.withOpacity(0.9),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 12),
-
-                    // Prioritize Study Session Card
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Color(0xF3FAFCFF),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 12,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Prioritize Study Session",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.track_changes, size: 20),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            "Your Math 101 midterm is next week. Plan for a 2-hour deep dive today.",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[700],
-                              height: 1.5,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          // Progress Bar
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: LinearProgressIndicator(
-                              value: 0.5,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.black87,
-                              ),
-                              minHeight: 8,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFE3F2FD),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "View Study Plan",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1976D2),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 22),
-
-                    // Today's Classes Header
-                    Text(
-                      "Today's Classes",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                    SizedBox(height: 22),
-
-                    // Class 1 - Calculus I
-                    _buildClassCard(
-                      time: "10:00",
-                      period: "AM",
-                      title: "Calculus I (Math 101)",
-                      instructor: "Prof. Garcia | Room 305",
-                      type: "Lecture",
-                      isActive: true,
-                    ),
-
-                    SizedBox(height: 12),
-
-                    // Class 2 - Philippine History
-                    _buildClassCard(
-                      time: "01:30",
-                      period: "PM",
-                      title: "Philippine History",
-                      instructor: "Dr. Santos | Auditorium B",
-                      type: "Seminar",
-                      isActive: false,
-                    ),
-
-                    SizedBox(height: 12),
-
-                    // Class 3 - Introduction to Programming
-                    _buildClassCard(
-                      time: "03:00",
-                      period: "PM",
-                      title: "Introduction to Programming",
-                      instructor: "Ms. Reyes | Computer Lab 1",
-                      type: "Lab",
-                      isActive: false,
-                    ),
-
-                    SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-
-            // Bottom Navigation Bar
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                child: Padding(
+            Column(
+              children: [
+                // Header with App Name
+                Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8.0,
-                    vertical: 8.0,
+                    horizontal: 20.0,
+                    vertical: 16.0,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildNavItem(context, Icons.home, "Home", true),
-                      _buildNavItem(
-                        context,
-                        Icons.calendar_today_outlined,
-                        "Schedule",
-                        false,
+                      SizedBox(width: 40), // Spacer for centering
+                      Text(
+                        "AcadEase",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.black,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                      _buildNavItem(
-                        context,
-                        Icons.notifications_outlined,
-                        "Alerts",
-                        false,
-                      ),
-                      _buildNavItem(
-                        context,
-                        Icons.cloud_outlined,
-                        "Weather",
-                        false,
-                      ),
-                      _buildNavItem(
-                        context,
-                        Icons.settings_outlined,
-                        "Settings",
-                        false,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.notifications_outlined,
+                            size: 26,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 12),
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.grey[400],
+                            child: Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
+                ),
+
+                // Divider line
+                Divider(color: Colors.grey[300], thickness: 1, height: 1),
+
+                // Main Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Weather Card
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.cloud_outlined,
+                                color: Colors.white.withOpacity(0.9),
+                                size: 32,
+                              ),
+                              SizedBox(width: 16),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "21°C",
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Cloudy",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 12),
+
+                        // Prioritize Study Session Card
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Color(0xF3FAFCFF),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 12,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Prioritize Study Session",
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.track_changes, size: 20),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12),
+                              Text(
+                                "Your Math 101 midterm is next week. Plan for a 2-hour deep dive today.",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[700],
+                                  height: 1.5,
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              // Progress Bar
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: LinearProgressIndicator(
+                                  value: 0.5,
+                                  backgroundColor: Colors.grey[300],
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.black87,
+                                  ),
+                                  minHeight: 8,
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFE3F2FD),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "View Study Plan",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1976D2),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 22),
+
+                        // Today's Classes Header
+                        Text(
+                          "Today's Classes",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+
+                        SizedBox(height: 22),
+
+                        // Class 1 - Calculus I
+                        _buildClassCard(
+                          time: "10:00",
+                          period: "AM",
+                          title: "Calculus I (Math 101)",
+                          instructor: "Prof. Garcia | Room 305",
+                          type: "Lecture",
+                          isActive: true,
+                        ),
+
+                        SizedBox(height: 12),
+
+                        // Class 2 - Philippine History
+                        _buildClassCard(
+                          time: "01:30",
+                          period: "PM",
+                          title: "Philippine History",
+                          instructor: "Dr. Santos | Auditorium B",
+                          type: "Seminar",
+                          isActive: false,
+                        ),
+
+                        SizedBox(height: 12),
+
+                        // Class 3 - Introduction to Programming
+                        _buildClassCard(
+                          time: "03:00",
+                          period: "PM",
+                          title: "Introduction to Programming",
+                          instructor: "Ms. Reyes | Computer Lab 1",
+                          type: "Lab",
+                          isActive: false,
+                        ),
+
+                        SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Bottom Navigation Bar
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 12,
+                        offset: Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 8.0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildNavItem(context, Icons.home, "Home", true),
+                          _buildNavItem(
+                            context,
+                            Icons.calendar_today_outlined,
+                            "Schedule",
+                            false,
+                          ),
+                          _buildNavItem(
+                            context,
+                            Icons.notifications_outlined,
+                            "Alerts",
+                            false,
+                          ),
+                          _buildNavItem(
+                            context,
+                            Icons.cloud_outlined,
+                            "Weather",
+                            false,
+                          ),
+                          _buildNavItem(
+                            context,
+                            Icons.settings_outlined,
+                            "Settings",
+                            false,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Right-side floating traffic icon (vertically centered)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: FloatingActionButton.small(
+                  heroTag: 'traffic_map_fab',
+                  tooltip: 'Open Traffic Map',
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  elevation: 4,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MapPage()),
+                    );
+                  },
+                  child: const Icon(Icons.traffic),
                 ),
               ),
             ),

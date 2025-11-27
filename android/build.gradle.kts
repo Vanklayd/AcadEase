@@ -1,3 +1,15 @@
+// Ensure the Google Services plugin is available to the build (Kotlin DSL requires classpath declared in buildscript).
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Add the Google Services plugin classpath so modules can apply it.
+        classpath("com.google.gms:google-services:4.3.15")
+    }
+}
+
 allprojects {
     repositories {
         google()

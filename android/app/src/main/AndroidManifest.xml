@@ -20,6 +20,9 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="AIzaSyAit53veFkMsAwn36JUx2kX-zgxM6nwEbI" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -42,4 +45,5 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places"></script>
 </manifest>

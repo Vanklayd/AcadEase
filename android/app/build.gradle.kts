@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -16,7 +17,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_11.toString()f
     }
 
     defaultConfig {
@@ -42,3 +43,8 @@ android {
 flutter {
     source = "../.."
 }
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDfZwwSSuVX5Tj8yJrXbR1jiOK5EYy4KA&libraries=places"></script>
+
+// apply the google services plugin (requires the classpath above)
+apply(plugin = "com.google.gms.google-services")
