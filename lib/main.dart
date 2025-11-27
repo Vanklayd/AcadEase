@@ -247,116 +247,121 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                 // Divider line
                 Divider(color: Colors.grey[300], thickness: 1, height: 1),
 
-            // Main Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Weather Card
-                    GestureDetector(
-                      onTap: _weatherError != null
-                          ? () {
-                              setState(() {
-                                _isLoadingWeather = true;
-                                _weatherError = null;
-                              });
-                              _fetchWeather();
-                            }
-                          : null,
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: _isLoadingWeather
-                            ? Center(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 20),
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            : _weatherError != null
-                            ? Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.cloud_off,
-                                      color: Colors.white.withOpacity(0.9),
-                                      size: 32,
+                // Main Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Weather Card
+                        GestureDetector(
+                          onTap: _weatherError != null
+                              ? () {
+                                  setState(() {
+                                    _isLoadingWeather = true;
+                                    _weatherError = null;
+                                  });
+                                  _fetchWeather();
+                                }
+                              : null,
+                          child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: _isLoadingWeather
+                                ? Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 20,
+                                      ),
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                    SizedBox(width: 16),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                  )
+                                : _weatherError != null
+                                ? Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          "Weather Unavailable",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
+                                        Icon(
+                                          Icons.cloud_off,
+                                          color: Colors.white.withOpacity(0.9),
+                                          size: 32,
                                         ),
-                                        Text(
-                                          "Tap to retry",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.white.withOpacity(
-                                              0.8,
+                                        SizedBox(width: 16),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Weather Unavailable",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
+                                            Text(
+                                              "Tap to retry",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.white.withOpacity(
+                                                  0.8,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              )
-                            : Row(
-                                children: [
-                                  Text(
-                                    _getWeatherIcon(),
-                                    style: TextStyle(fontSize: 32),
-                                  ),
-                                  SizedBox(width: 16),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  )
+                                : Row(
                                     children: [
                                       Text(
-                                        "${_weather!.temperature!.celsius!.round()}°C",
-                                        style: TextStyle(
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
+                                        _getWeatherIcon(),
+                                        style: TextStyle(fontSize: 32),
                                       ),
-                                      Text(
-                                        _weather!.weatherDescription ?? "N/A",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.white.withOpacity(0.9),
-                                        ),
+                                      SizedBox(width: 16),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${_weather!.temperature!.celsius!.round()}°C",
+                                            style: TextStyle(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          Text(
+                                            _weather!.weatherDescription ??
+                                                "N/A",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.white.withOpacity(
+                                                0.9,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                      ),
-                    ),
+                          ),
+                        ),
 
                         SizedBox(height: 12),
 
@@ -447,33 +452,33 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
 
                         SizedBox(height: 22),
 
-                    // Today's Classes Header with Date
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Today's Classes",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                        // Today's Classes Header with Date
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Today's Classes",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('MMM d, yyyy').format(DateTime.now()),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          DateFormat('MMM d, yyyy').format(DateTime.now()),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
 
                         SizedBox(height: 22),
 
-                    // Today's Classes - Dynamic
-                    ..._buildTodayClasses(),
+                        // Today's Classes - Dynamic
+                        ..._buildTodayClasses(),
 
                         SizedBox(height: 24),
                       ],
