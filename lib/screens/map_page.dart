@@ -152,9 +152,7 @@ class _MapPageState extends State<MapPage> {
       final controller = await _controller.future;
       await controller.animateCamera(CameraUpdate.newCameraPosition(mid));
       try {
-        await controller.showMarkerInfoWindow(
-          MarkerId(first['markerId'] as String),
-        );
+        await controller.showMarkerInfoWindow(MarkerId(first['markerId'] as String));
       } catch (_) {
         // Some platforms or plugin versions may not support showing multiple info windows.
       }
@@ -279,10 +277,8 @@ class _MapPageState extends State<MapPage> {
         points: polylineCoordinates,
       );
 
-      final etaText =
-          '${(durationInTraffic / 60).toStringAsFixed(0)} min (traffic)';
-      final coord =
-          '(${destination.latitude.toStringAsFixed(3)}, ${destination.longitude.toStringAsFixed(3)})';
+      final etaText = '${(durationInTraffic / 60).toStringAsFixed(0)} min (traffic)';
+      final coord = '(${destination.latitude.toStringAsFixed(3)}, ${destination.longitude.toStringAsFixed(3)})';
       final markerId = MarkerId('dest_$id');
 
       setState(() {
@@ -464,8 +460,7 @@ class _MapPageState extends State<MapPage> {
                                         onTap: () async {
                                           final lat = t['lat'] as double;
                                           final lng = t['lng'] as double;
-                                          final controller =
-                                              await _controller.future;
+                                          final controller = await _controller.future;
                                           await controller.animateCamera(
                                             CameraUpdate.newLatLngZoom(
                                               LatLng(lat, lng),
@@ -475,10 +470,7 @@ class _MapPageState extends State<MapPage> {
                                           try {
                                             await controller
                                                 .showMarkerInfoWindow(
-                                                  MarkerId(
-                                                    t['markerId'] as String,
-                                                  ),
-                                                );
+                                                    MarkerId(t['markerId'] as String));
                                           } catch (_) {}
                                         },
                                       );

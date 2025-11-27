@@ -17,7 +17,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()f
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     defaultConfig {
@@ -44,7 +44,6 @@ flutter {
     source = "../.."
 }
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDfZwwSSuVX5Tj8yJrXbR1jiOK5EYy4KA&libraries=places"></script>
-
 // apply the google services plugin (requires the classpath above)
-apply(plugin = "com.google.gms.google-services")
+// The plugin is already declared in the plugins block above (id("com.google.gms.google-services")),
+// so no inline HTML or duplicate apply calls should be present here.

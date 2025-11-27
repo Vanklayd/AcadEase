@@ -22,7 +22,7 @@
               />
             <meta-data
                 android:name="com.google.android.geo.API_KEY"
-                android:value="AIzaSyAit53veFkMsAwn36JUx2kX-zgxM6nwEbI" />
+                android:value="@string/google_maps_key" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -45,5 +45,4 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places"></script>
 </manifest>

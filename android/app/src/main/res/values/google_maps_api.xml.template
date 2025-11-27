@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Copy this file to google_maps_api.xml and replace the value with your key.
+       Keep the resulting file out of version control. -->
+  <string name="google_maps_key">AIzaSyCkTkskjTbf39A9RR-RGtBadBPMsgF07Ds</string>
+</resources>

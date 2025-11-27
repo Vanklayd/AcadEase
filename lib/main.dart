@@ -5,8 +5,16 @@ import 'package:flutter/material.dart';
 import 'screens/map_page.dart';
 import 'package:weather/weather.dart';
 import 'package:intl/intl.dart';
+import 'config/google_api.dart';
+import 'utils/maps_injector.dart';
 
-void main() {
+Future<void> main() async {
+  // If a web Maps API key was provided at build/run time via dart-define,
+  // inject the Maps JS library before bootstrapping the Flutter app.
+  try {
+    await injectMapsScript(GoogleApi.apiKey);
+  } catch (_) {}
+
   runApp(const MyApp());
 }
 

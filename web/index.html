@@ -33,11 +33,12 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <!-- Add your Google Maps JavaScript API key below. Replace YOUR_GOOGLE_API_KEY_HERE with
-       your actual key. The Maps JS library must be loaded on web before the Flutter app
-       so `window.google.maps` is defined. Enable the Maps JavaScript API in the
-       Google Cloud Console and configure referrer restrictions as needed. -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDfZwwSSuVX5Tj8yJrXbR1jiOK5EYy4KA&libraries=places"></script>
+    <!-- The Maps JavaScript API should NOT contain a hard-coded API key in source.
+      This project expects the key to be provided at runtime via Dart define
+      (see `KEYS_README.md`) or injected into `web/index.html` by your local
+      helper script. The Flutter app will dynamically inject the Maps JS
+      library when running on web using the `GOOGLE_MAPS_API_KEY` dart-define.
+      Do NOT commit an index.html that contains an API key. -->
   <script src="flutter_bootstrap.js"></script>
 </body>
 </html>
