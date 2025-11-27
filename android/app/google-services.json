@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "532841674348",
+    "project_id": "acadease-d7921",
+    "storage_bucket": "acadease-d7921.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:532841674348:android:f2e5e7bc6f722b18990a49",
+        "android_client_info": {
+          "package_name": "com.example.appdevfinals"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtvocTpx9Ym8jU0-VmidfL8BsId7AKGbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

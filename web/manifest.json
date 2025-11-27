@@ -1,6 +1,6 @@
 {
-    "name": "appdev_project",
-    "short_name": "appdev_project",
+    "name": "appdevfinals",
+    "short_name": "appdevfinals",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
