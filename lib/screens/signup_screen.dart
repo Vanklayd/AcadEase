@@ -89,12 +89,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } on TimeoutException {
       // Network is slow; inform user but continue (server rules should still protect duplicates if enforced)
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username check timed out, continuing...')),
+        const SnackBar(
+          content: Text('Username check timed out, continuing...'),
+        ),
       );
     } catch (e) {
       // Non-fatal: inform and continue
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not verify username, continuing...')),
+        const SnackBar(
+          content: Text('Could not verify username, continuing...'),
+        ),
       );
     }
 
@@ -109,15 +113,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
         // Kick off Firestore profile write and display name update in background (don't block navigation)
         Future(() async {
           try {
-            await FirebaseFirestore.instance.collection('users').doc(uid).set({
-              'displayName': fullName,
-              'email': email,
-              'username': username,
-              'createdAt': FieldValue.serverTimestamp(),
-            }).timeout(const Duration(seconds: 10));
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(uid)
+                .set({
+                  'displayName': fullName,
+                  'email': email,
+                  'username': username,
+                  'createdAt': FieldValue.serverTimestamp(),
+                })
+                .timeout(const Duration(seconds: 10));
             await cred.user?.updateDisplayName(fullName);
           } catch (fireErr) {
-            debugPrint('Background profile write failed for uid=$uid: $fireErr');
+            debugPrint(
+              'Background profile write failed for uid=$uid: $fireErr',
+            );
           }
         });
         // Inform user immediately and navigate to Login

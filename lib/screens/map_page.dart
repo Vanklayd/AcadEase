@@ -210,7 +210,7 @@ class _MapPageState extends State<MapPage> {
       }
       final status = (body['status'] ?? 'NO_STATUS') as String;
       final errMsg = (body['error_message'] ?? '') as String;
-        setState(() {
+      setState(() {
         _debugInfo =
             'status=$status; error_message=$errMsg; routes=${(body['routes'] as List?)?.length ?? 0}';
       });

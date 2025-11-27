@@ -9,7 +9,8 @@ Future<void> injectMapsScript(String apiKey) async {
     final head = html.document.head;
     if (head == null) return;
     final script = html.ScriptElement()
-      ..src = 'https://maps.googleapis.com/maps/api/js?key=$apiKey&libraries=places'
+      ..src =
+          'https://maps.googleapis.com/maps/api/js?key=$apiKey&libraries=places'
       ..async = false;
     head.append(script);
     final completer = Completer<void>();

@@ -35,7 +35,7 @@ class _WeatherPageState extends State<WeatherPage> {
       setState(() {
         _isLoading = false;
       });
-        debugPrint("Error fetching weather: $e");
+      debugPrint("Error fetching weather: $e");
     }
   }
 

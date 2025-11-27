@@ -16,9 +16,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase with generated platform-specific options
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // If a web Maps API key was provided at build/run time via dart-define,
   // inject the Maps JS library before bootstrapping the Flutter app.
@@ -72,7 +70,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
         });
       }
     } catch (e) {
-    debugPrint("Error fetching weather: $e");
+      debugPrint("Error fetching weather: $e");
       if (mounted) {
         setState(() {
           _isLoadingWeather = false;

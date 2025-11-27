@@ -37,11 +37,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (!_isValidEmail(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid email')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email')),
+      );
       return;
     }
     if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password must be at least 6 characters')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password must be at least 6 characters')),
+      );
       return;
     }
 
@@ -53,7 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .get();
         if (doc.exists) {
           // Optionally use profile data
           final data = doc.data();
@@ -92,9 +99,13 @@ class _LoginScreenState extends State<LoginScreen> {
         default:
           message = e.message ?? message;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -145,7 +156,9 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isResetting = true);
     try {
       // Check if any sign-in method exists for this email to avoid silent success confusion
-      final methods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(emailToUse);
+      final methods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(
+        emailToUse,
+      );
       if (methods.isEmpty) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -155,7 +168,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       await FirebaseAuth.instance.sendPasswordResetEmail(email: emailToUse);
-      debugPrint('Password reset email requested for $emailToUse (methods: $methods)');
+      debugPrint(
+        'Password reset email requested for $emailToUse (methods: $methods)',
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -180,9 +195,9 @@ class _LoginScreenState extends State<LoginScreen> {
         msg = e.message!;
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
       }
     } catch (e) {
       debugPrint('Unexpected reset error for $emailToUse: $e');
@@ -323,7 +338,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ? const SizedBox(
                                     width: 16,
                                     height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : const Text(
                                     "Forgot Password?",
