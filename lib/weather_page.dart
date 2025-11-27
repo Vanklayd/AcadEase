@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:appdev_project/main.dart';
 import 'package:appdev_project/schedule_page.dart';
 import 'package:appdev_project/alerts_page.dart';
+import 'package:weather/weather.dart';
+import 'package:intl/intl.dart';
 
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
@@ -11,6 +13,40 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
+  final WeatherFactory _wf = WeatherFactory("ffce7850163c676d026a180b54c809a8");
+  Weather? _weather;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWeather();
+  }
+
+  Future<void> _fetchWeather() async {
+    try {
+      // Fetch weather for Manila, Philippines
+      Weather weather = await _wf.currentWeatherByCityName("Manila");
+      setState(() {
+        _weather = weather;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error fetching weather: $e");
+    }
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return DateFormat('hh:mm a').format(dateTime);
+  }
+
+  String _formatDate(DateTime dateTime) {
+    return DateFormat('EEEE,\nMMMM d').format(dateTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +61,7 @@ class _WeatherPageState extends State<WeatherPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '9:41',
+                    DateFormat('h:mm').format(DateTime.now()),
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   Row(
@@ -51,63 +87,229 @@ class _WeatherPageState extends State<WeatherPage> {
             // Divider
             Container(height: 1, color: Colors.grey[300]),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Date and Temperature
-                    Container(
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
                       padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Friday,',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
+                          // Date and Temperature
+                          Container(
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      DateFormat(
+                                        'EEEE,',
+                                      ).format(DateTime.now()),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      DateFormat(
+                                        'MMMM d',
+                                      ).format(DateTime.now()),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      DateFormat(
+                                        'hh:mm a',
+                                      ).format(DateTime.now()),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Text(
-                                'December 1',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      _weather != null
+                                          ? '${_weather!.temperature!.celsius!.toStringAsFixed(0)}°C'
+                                          : '-- °C',
+                                      style: TextStyle(
+                                        fontSize: 48,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    Text(
+                                      _weather != null
+                                          ? '${_weather!.temperature!.fahrenheit!.toStringAsFixed(0)}°F'
+                                          : '-- °F',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                '09:41 AM',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                          SizedBox(height: 24),
+                          // Location placeholder box
+                          Container(
+                            height: 400,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.location_on,
+                                    size: 48,
+                                    color: Color(0xFF03A9F4),
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    _weather?.areaName ?? 'Manila',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    _weather?.country ?? 'Philippines',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 24),
+                          // Today's Forecast
+                          Text(
+                            "Today's Forecast",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          _buildForecastRow(
+                            'Temperature',
+                            _weather != null
+                                ? '${_weather!.temperature!.celsius!.toStringAsFixed(0)}°C / ${_weather!.temperature!.fahrenheit!.toStringAsFixed(0)}°F'
+                                : '-- °C / -- °F',
+                          ),
+                          SizedBox(height: 12),
+                          _buildForecastRow(
+                            'Humidity',
+                            _weather != null ? '${_weather!.humidity}%' : '--%',
+                          ),
+                          SizedBox(height: 12),
+                          _buildForecastRow(
+                            'Wind',
+                            _weather != null
+                                ? '${_weather!.windSpeed!.toStringAsFixed(1)} km/h'
+                                : '-- km/h',
+                          ),
+                          SizedBox(height: 12),
+                          _buildForecastRow(
+                            'Conditions',
+                            _weather?.weatherDescription ?? 'Unknown',
+                          ),
+                          SizedBox(height: 24),
+                          // Sunrise and Sunset
+                          Row(
                             children: [
-                              Text(
-                                '28°C',
-                                style: TextStyle(
-                                  fontSize: 48,
-                                  fontWeight: FontWeight.w700,
+                              Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.wb_sunny_outlined,
+                                        color: Color(0xFFFFB300),
+                                        size: 40,
+                                      ),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        _weather?.sunrise != null
+                                            ? _formatTime(_weather!.sunrise!)
+                                            : '--:-- --',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Sunrise',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              Text(
-                                '82°F',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.nightlight_round_outlined,
+                                        color: Color(0xFF1976D2),
+                                        size: 40,
+                                      ),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        _weather?.sunset != null
+                                            ? _formatTime(_weather!.sunset!)
+                                            : '--:-- --',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Sunset',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -115,141 +317,6 @@ class _WeatherPageState extends State<WeatherPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 24),
-                    // Philippines Map
-                    Container(
-                      height: 400,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: CustomPaint(
-                              size: Size(300, 400),
-                              painter: PhilippinesMapPainter(),
-                            ),
-                          ),
-                          Positioned(
-                            left: 160,
-                            top: 180,
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Color(0xFF03A9F4),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 3,
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.location_on,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 24),
-                    // Today's Forecast
-                    Text(
-                      "Today's Forecast",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    _buildForecastRow('Temperature', '28°C / 82°F'),
-                    SizedBox(height: 12),
-                    _buildForecastRow('Humidity', '75%'),
-                    SizedBox(height: 12),
-                    _buildForecastRow('Wind', '10 km/h NE'),
-                    SizedBox(height: 12),
-                    _buildForecastRow('Conditions', 'Partly Cloudy'),
-                    SizedBox(height: 24),
-                    // Sunrise and Sunset
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.wb_sunny_outlined,
-                                  color: Color(0xFFFFB300),
-                                  size: 40,
-                                ),
-                                SizedBox(height: 12),
-                                Text(
-                                  '06:05 AM',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Sunrise',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.nightlight_round_outlined,
-                                  color: Color(0xFF1976D2),
-                                  size: 40,
-                                ),
-                                SizedBox(height: 12),
-                                Text(
-                                  '05:38 PM',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Sunset',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
             ),
             // Bottom Navigation
             Container(
@@ -371,93 +438,5 @@ class _WeatherPageState extends State<WeatherPage> {
         ),
       ),
     );
-  }
-}
-
-class PhilippinesMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey[400]!
-      ..style = PaintingStyle.fill;
-
-    final dotPaint = Paint()
-      ..color = Colors.grey[400]!
-      ..style = PaintingStyle.fill;
-
-    // Draw Philippines map using dots
-    final path = Path();
-
-    // Northern Luzon
-    for (double x = 130; x < 160; x += 4) {
-      for (double y = 20; y < 100; y += 4) {
-        if (_isInNorthernLuzon(x, y)) {
-          canvas.drawCircle(Offset(x, y), 1.5, dotPaint);
-        }
-      }
-    }
-
-    // Central and Southern Luzon
-    for (double x = 115; x < 175; x += 4) {
-      for (double y = 100; y < 200; y += 4) {
-        if (_isInCentralLuzon(x, y)) {
-          canvas.drawCircle(Offset(x, y), 1.5, dotPaint);
-        }
-      }
-    }
-
-    // Visayas
-    for (double x = 140; x < 220; x += 4) {
-      for (double y = 200; y < 280; y += 4) {
-        if (_isInVisayas(x, y)) {
-          canvas.drawCircle(Offset(x, y), 1.5, dotPaint);
-        }
-      }
-    }
-
-    // Mindanao
-    for (double x = 160; x < 240; x += 4) {
-      for (double y = 280; y < 390; y += 4) {
-        if (_isInMindanao(x, y)) {
-          canvas.drawCircle(Offset(x, y), 1.5, dotPaint);
-        }
-      }
-    }
-
-    // Palawan
-    for (double x = 40; x < 100; x += 4) {
-      for (double y = 160; y < 360; y += 4) {
-        if (_isInPalawan(x, y)) {
-          canvas.drawCircle(Offset(x, y), 1.5, dotPaint);
-        }
-      }
-    }
-  }
-
-  bool _isInNorthernLuzon(double x, double y) {
-    return (x - 145).abs() < 15 && y < 100;
-  }
-
-  bool _isInCentralLuzon(double x, double y) {
-    return (x - 145).abs() < 30 && y >= 100 && y < 200;
-  }
-
-  bool _isInVisayas(double x, double y) {
-    return (x - 180).abs() < 40 && y >= 200 && y < 280;
-  }
-
-  bool _isInMindanao(double x, double y) {
-    return (x - 200).abs() < 40 && y >= 280;
-  }
-
-  bool _isInPalawan(double x, double y) {
-    double centerY = 260;
-    double width = 15;
-    return (x - 70).abs() < width && (y - centerY).abs() < 100;
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }

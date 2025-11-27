@@ -3,6 +3,8 @@ import 'package:appdev_project/alerts_page.dart';
 import 'package:appdev_project/weather_page.dart';
 import 'package:flutter/material.dart';
 import 'screens/map_page.dart';
+import 'package:weather/weather.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,8 +27,162 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AcadEaseHome extends StatelessWidget {
+class AcadEaseHome extends StatefulWidget {
   const AcadEaseHome({super.key});
+
+  @override
+  State<AcadEaseHome> createState() => _AcadEaseHomeState();
+}
+
+class _AcadEaseHomeState extends State<AcadEaseHome> {
+  final WeatherFactory _wf = WeatherFactory("ffce7850163c676d026a180b54c809a8");
+  Weather? _weather;
+  bool _isLoadingWeather = true;
+  String? _weatherError;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWeather();
+  }
+
+  Future<void> _fetchWeather() async {
+    try {
+      Weather w = await _wf.currentWeatherByCityName("Manila");
+      if (mounted) {
+        setState(() {
+          _weather = w;
+          _isLoadingWeather = false;
+        });
+      }
+    } catch (e) {
+      print("Error fetching weather: $e");
+      if (mounted) {
+        setState(() {
+          _isLoadingWeather = false;
+          _weatherError = "Unable to fetch weather";
+        });
+      }
+    }
+  }
+
+  String _getWeatherIcon() {
+    if (_weather == null) return "🌤️";
+    String? main = _weather!.weatherMain?.toLowerCase();
+    if (main == null) return "🌤️";
+
+    if (main.contains('cloud')) return "☁️";
+    if (main.contains('rain')) return "🌧️";
+    if (main.contains('clear')) return "☀️";
+    if (main.contains('storm') || main.contains('thunder')) return "⛈️";
+    if (main.contains('snow')) return "❄️";
+    if (main.contains('mist') || main.contains('fog')) return "🌫️";
+    return "🌤️";
+  }
+
+  // Sample subjects pool (same as schedule_page.dart)
+  final List<Map<String, dynamic>> subjectPool = const [
+    {
+      'title': 'Operating Systems',
+      'instructor': 'Prof. J. Cruz',
+      'location': 'CS Lab 201',
+    },
+    {
+      'title': 'Discrete Mathematics',
+      'instructor': 'Dr. M. Garcia',
+      'location': 'Rm 305',
+    },
+    {
+      'title': 'Data Structures',
+      'instructor': 'Engr. R. Santos',
+      'location': 'Lecture Hall 1',
+    },
+    {
+      'title': 'Web Development',
+      'instructor': 'Prof. A. Reyes',
+      'location': 'IT Lab 102',
+    },
+    {
+      'title': 'Database Systems',
+      'instructor': 'Dr. L. Torres',
+      'location': 'Rm 210',
+    },
+    {
+      'title': 'Computer Networks',
+      'instructor': 'Engr. P. Mendoza',
+      'location': 'CS Lab 203',
+    },
+    {
+      'title': 'Software Engineering',
+      'instructor': 'Prof. K. Villanueva',
+      'location': 'Rm 401',
+    },
+    {
+      'title': 'Mobile Development',
+      'instructor': 'Dr. S. Castillo',
+      'location': 'IT Lab 105',
+    },
+    {
+      'title': 'Machine Learning',
+      'instructor': 'Prof. D. Ramos',
+      'location': 'AI Lab 301',
+    },
+    {
+      'title': 'Artificial Intelligence',
+      'instructor': 'Dr. R. Flores',
+      'location': 'AI Lab 302',
+    },
+  ];
+
+  final List<String> tags = const ['Weekly', 'MWF', 'TTH', 'Daily'];
+  final List<String> types = const ['Lecture', 'Lab', 'Seminar', 'Workshop'];
+  final List<String> times = const [
+    '9:00 AM - 10:30 AM',
+    '11:00 AM - 12:00 PM',
+    '1:00 PM - 2:30 PM',
+    '2:00 PM - 3:30 PM',
+    '3:00 PM - 4:30 PM',
+    '4:00 PM - 5:30 PM',
+  ];
+
+  List<Map<String, dynamic>> _getScheduleForDay(DateTime date) {
+    // Generate deterministic random schedule based on date
+    int seed = date.year * 10000 + date.month * 100 + date.day;
+    // Number of classes for the day (2-4 classes)
+    int classCount = (seed % 3) + 2;
+
+    List<Map<String, dynamic>> schedule = [];
+    List<int> usedTimeSlots = [];
+
+    for (int i = 0; i < classCount; i++) {
+      int subjectIndex = (seed + i * 7) % subjectPool.length;
+      int timeSlotIndex = (seed + i * 3) % times.length;
+
+      // Avoid duplicate time slots
+      while (usedTimeSlots.contains(timeSlotIndex)) {
+        timeSlotIndex = (timeSlotIndex + 1) % times.length;
+      }
+      usedTimeSlots.add(timeSlotIndex);
+
+      int tagIndex = (seed + i * 5) % tags.length;
+      int typeIndex = (seed + i * 11) % types.length;
+
+      Map<String, dynamic> subject = subjectPool[subjectIndex];
+      schedule.add({
+        'timeSlot': timeSlotIndex,
+        'title': subject['title'],
+        'instructor': subject['instructor'],
+        'location': subject['location'],
+        'time': times[timeSlotIndex],
+        'tag': tags[tagIndex],
+        'type': types[typeIndex],
+      });
+    }
+
+    // Sort by time slot
+    schedule.sort((a, b) => a['timeSlot'].compareTo(b['timeSlot']));
+    return schedule;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,59 +239,116 @@ class AcadEaseHome extends StatelessWidget {
                 // Divider line
                 Divider(color: Colors.grey[300], thickness: 1, height: 1),
 
-                // Main Content
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Weather Card
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 10,
+            // Main Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Weather Card
+                    GestureDetector(
+                      onTap: _weatherError != null
+                          ? () {
+                              setState(() {
+                                _isLoadingWeather = true;
+                                _weatherError = null;
+                              });
+                              _fetchWeather();
+                            }
+                          : null,
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.cloud_outlined,
-                                color: Colors.white.withOpacity(0.9),
-                                size: 32,
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: _isLoadingWeather
+                            ? Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            : _weatherError != null
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.cloud_off,
+                                      color: Colors.white.withOpacity(0.9),
+                                      size: 32,
+                                    ),
+                                    SizedBox(width: 16),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Weather Unavailable",
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Tap to retry",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.white.withOpacity(
+                                              0.8,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Row(
                                 children: [
                                   Text(
-                                    "21°C",
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
+                                    _getWeatherIcon(),
+                                    style: TextStyle(fontSize: 32),
                                   ),
-                                  Text(
-                                    "Cloudy",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
+                                  SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${_weather!.temperature!.celsius!.round()}°C",
+                                        style: TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        _weather!.weatherDescription ?? "N/A",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.white.withOpacity(0.9),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
+                      ),
+                    ),
 
                         SizedBox(height: 12),
 
@@ -226,7 +439,10 @@ class AcadEaseHome extends StatelessWidget {
 
                         SizedBox(height: 22),
 
-                        // Today's Classes Header
+                    // Today's Classes Header with Date
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
                           "Today's Classes",
                           style: TextStyle(
@@ -235,42 +451,21 @@ class AcadEaseHome extends StatelessWidget {
                             color: Colors.black,
                           ),
                         ),
+                        Text(
+                          DateFormat('MMM d, yyyy').format(DateTime.now()),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
 
                         SizedBox(height: 22),
 
-                        // Class 1 - Calculus I
-                        _buildClassCard(
-                          time: "10:00",
-                          period: "AM",
-                          title: "Calculus I (Math 101)",
-                          instructor: "Prof. Garcia | Room 305",
-                          type: "Lecture",
-                          isActive: true,
-                        ),
-
-                        SizedBox(height: 12),
-
-                        // Class 2 - Philippine History
-                        _buildClassCard(
-                          time: "01:30",
-                          period: "PM",
-                          title: "Philippine History",
-                          instructor: "Dr. Santos | Auditorium B",
-                          type: "Seminar",
-                          isActive: false,
-                        ),
-
-                        SizedBox(height: 12),
-
-                        // Class 3 - Introduction to Programming
-                        _buildClassCard(
-                          time: "03:00",
-                          period: "PM",
-                          title: "Introduction to Programming",
-                          instructor: "Ms. Reyes | Computer Lab 1",
-                          type: "Lab",
-                          isActive: false,
-                        ),
+                    // Today's Classes - Dynamic
+                    ..._buildTodayClasses(),
 
                         SizedBox(height: 24),
                       ],
@@ -356,6 +551,115 @@ class AcadEaseHome extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  bool _isClassActive(String timeRange) {
+    DateTime now = DateTime.now();
+    try {
+      // Parse start and end time from "9:00 AM - 10:30 AM"
+      List<String> times = timeRange.split(' - ');
+      String startTimeStr = times[0];
+      String endTimeStr = times[1];
+
+      DateTime startTime = DateFormat('h:mm a').parse(startTimeStr);
+      DateTime endTime = DateFormat('h:mm a').parse(endTimeStr);
+
+      // Combine with today's date
+      DateTime classStart = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        startTime.hour,
+        startTime.minute,
+      );
+      DateTime classEnd = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        endTime.hour,
+        endTime.minute,
+      );
+
+      // Check if current time is within class time
+      return now.isAfter(classStart) && now.isBefore(classEnd);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  List<Widget> _buildTodayClasses() {
+    DateTime today = DateTime.now();
+    List<Map<String, dynamic>> todaySchedule = _getScheduleForDay(today);
+
+    List<Widget> classWidgets = [];
+    bool hasActiveClass = false;
+
+    for (int i = 0; i < todaySchedule.length; i++) {
+      var classItem = todaySchedule[i];
+      String fullTime = classItem['time'];
+
+      // Parse time (e.g., "9:00 AM - 10:30 AM")
+      String startTime = fullTime.split(' - ')[0];
+      List<String> timeParts = startTime.split(' ');
+      String time = timeParts[0];
+      String period = timeParts[1];
+
+      bool isActive = _isClassActive(fullTime);
+      if (isActive) hasActiveClass = true;
+
+      classWidgets.add(
+        _buildClassCard(
+          time: time,
+          period: period,
+          title: classItem['title'],
+          instructor: '${classItem['instructor']} | ${classItem['location']}',
+          type: classItem['type'],
+          isActive: isActive,
+        ),
+      );
+
+      if (i < todaySchedule.length - 1) {
+        classWidgets.add(SizedBox(height: 12));
+      }
+    }
+
+    // If no class is currently active, mark the next upcoming class
+    if (!hasActiveClass && classWidgets.isNotEmpty) {
+      DateTime now = DateTime.now();
+      for (int i = 0; i < todaySchedule.length; i++) {
+        var classItem = todaySchedule[i];
+        String startTime = classItem['time'].split(' - ')[0];
+        try {
+          DateTime classStart = DateFormat('h:mm a').parse(startTime);
+          DateTime classStartFull = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            classStart.hour,
+            classStart.minute,
+          );
+
+          if (now.isBefore(classStartFull)) {
+            // Rebuild this class card as active
+            List<String> timeParts = startTime.split(' ');
+            classWidgets[i * 2] = _buildClassCard(
+              time: timeParts[0],
+              period: timeParts[1],
+              title: classItem['title'],
+              instructor:
+                  '${classItem['instructor']} | ${classItem['location']}',
+              type: classItem['type'],
+              isActive: true,
+            );
+            break;
+          }
+        } catch (e) {
+          // Continue to next
+        }
+      }
+    }
+
+    return classWidgets;
   }
 
   Widget _buildClassCard({
