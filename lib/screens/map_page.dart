@@ -192,8 +192,7 @@ class _MapPageState extends State<MapPage> {
       } else {
         final res = await http.get(url).timeout(const Duration(seconds: 10));
         // Log raw response for debugging
-        // ignore: avoid_print
-        print('Directions API response (${res.statusCode}): ${res.body}');
+        debugPrint('Directions API response (${res.statusCode}): ${res.body}');
         if (res.statusCode != 200) {
           setState(() {
             _debugInfo = 'HTTP ${res.statusCode}';
@@ -211,9 +210,9 @@ class _MapPageState extends State<MapPage> {
       }
       final status = (body['status'] ?? 'NO_STATUS') as String;
       final errMsg = (body['error_message'] ?? '') as String;
-      setState(() {
+        setState(() {
         _debugInfo =
-            'status=$status; error_message=${errMsg}; routes=${(body['routes'] as List?)?.length ?? 0}';
+            'status=$status; error_message=$errMsg; routes=${(body['routes'] as List?)?.length ?? 0}';
       });
       if (status != 'OK') {
         // Provide more helpful feedback: status and optional error_message
@@ -247,7 +246,7 @@ class _MapPageState extends State<MapPage> {
             (leg['duration_in_traffic']?['value'] ?? duration) as int;
       }
 
-      final points = PolylinePoints().decodePolyline(overview);
+      final points = PolylinePoints.decodePolyline(overview);
       final polylineCoordinates = points
           .map((p) => LatLng(p.latitude, p.longitude))
           .toList();
@@ -309,8 +308,7 @@ class _MapPageState extends State<MapPage> {
       });
       if (mounted) setState(() {});
     } catch (e) {
-      // ignore: avoid_print
-      print('Error fetching directions: $e');
+      debugPrint('Error fetching directions: $e');
       if (!mounted) return;
       setState(() {
         _debugInfo = 'exception: ${e.toString()}';

@@ -35,7 +35,7 @@ class _WeatherPageState extends State<WeatherPage> {
       setState(() {
         _isLoading = false;
       });
-      print("Error fetching weather: $e");
+        debugPrint("Error fetching weather: $e");
     }
   }
 
@@ -43,9 +43,7 @@ class _WeatherPageState extends State<WeatherPage> {
     return DateFormat('hh:mm a').format(dateTime);
   }
 
-  String _formatDate(DateTime dateTime) {
-    return DateFormat('EEEE,\nMMMM d').format(dateTime);
-  }
+  // Removed unused _formatDate helper to clean warnings.
 
   @override
   Widget build(BuildContext context) {

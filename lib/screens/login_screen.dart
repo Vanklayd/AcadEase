@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseFirestore;
 import 'package:flutter/material.dart';
 import 'signup_screen.dart';
+import '../main.dart' show AcadEaseHome;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
   bool obscurePassword = true;
   bool _isLoading = false;
+  bool _isResetting = false;
 
   @override
   void dispose() {
@@ -57,13 +59,18 @@ class _LoginScreenState extends State<LoginScreen> {
           final data = doc.data();
           // For now we just print it to console for debugging
           // ignore: avoid_print
-          print('Loaded user profile: $data');
+          debugPrint('Loaded user profile: $data');
         }
       }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Signed in successfully')));
-      // TODO: navigate to home screen
+      if (!mounted) return;
+      // Navigate to main dashboard
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AcadEaseHome()),
+      );
     } on FirebaseAuthException catch (e) {
       String message = 'Failed to sign in';
       switch (e.code) {
@@ -90,6 +97,102 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _forgotPassword() async {
+    final existingEmail = _emailController.text.trim();
+    String? emailToUse = existingEmail.isNotEmpty ? existingEmail : null;
+
+    if (emailToUse == null) {
+      emailToUse = await showDialog<String?>(
+        context: context,
+        builder: (ctx) {
+          final controller = TextEditingController();
+          return AlertDialog(
+            title: const Text('Reset Password'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                hintText: 'Enter your account email',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(null),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
+                child: const Text('Send'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    if (emailToUse == null || emailToUse.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please provide a valid email.')),
+      );
+      return;
+    }
+
+    setState(() => _isResetting = true);
+    try {
+      // Check if any sign-in method exists for this email to avoid silent success confusion
+      final methods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(emailToUse);
+      if (methods.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No account found for $emailToUse')),
+        );
+        return;
+      }
+
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: emailToUse);
+      debugPrint('Password reset email requested for $emailToUse (methods: $methods)');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Reset link sent to $emailToUse. Check inbox/spam. If not received in 1–2 min, verify email or authorized domain in Firebase.',
+          ),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String msg = 'Failed to send reset email';
+      if (e.code == 'user-not-found') {
+        msg = 'No account found for $emailToUse';
+      } else if (e.code == 'invalid-email') {
+        msg = 'Invalid email format';
+      } else if (e.code == 'missing-android-pkg-name') {
+        msg = 'App package name missing in request configuration.';
+      } else if (e.code == 'missing-continue-uri') {
+        msg = 'Continue URL missing – check action code settings.';
+      } else if (e.code == 'missing-ios-bundle-id') {
+        msg = 'iOS bundle ID missing – check action code settings.';
+      } else if (e.message != null) {
+        msg = e.message!;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg)),
+        );
+      }
+    } catch (e) {
+      debugPrint('Unexpected reset error for $emailToUse: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Something went wrong. Try again.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isResetting = false);
     }
   }
 
@@ -215,11 +318,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                           TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              "Forgot Password?",
-                              style: TextStyle(color: Colors.blue),
-                            ),
+                            onPressed: _isResetting ? null : _forgotPassword,
+                            child: _isResetting
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Text(
+                                    "Forgot Password?",
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
                           ),
                         ],
                       ),

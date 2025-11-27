@@ -5,8 +5,8 @@ This project removes hardcoded Google API keys from source to avoid accidental c
 How to provide keys locally
 
 - Web and native (recommended): pass the key at build/run time using dart-define.
-
-  flutter run -d chrome --dart-define=GOOGLE_MAPS_API_KEY=YOUR_KEY_HERE
+flutter run -d chrome --dart-define=GOOGLE_MAPS_API_KEY=YOUR_KEY_HERE
+  
   flutter build web --dart-define=GOOGLE_MAPS_API_KEY=YOUR_KEY_HERE
  flutter run -d chrome --dart-define=GOOGLE_MAPS_API_KEY=YOUR_KEY_HERE
 

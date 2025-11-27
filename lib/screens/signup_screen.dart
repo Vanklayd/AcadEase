@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart'
     show FirebaseFirestore, FieldValue;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,27 +72,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Check username uniqueness
+    // Check username uniqueness (time-bounded)
     try {
       final existing = await FirebaseFirestore.instance
           .collection('users')
           .where('username', isEqualTo: username)
           .limit(1)
-          .get();
+          .get()
+          .timeout(const Duration(seconds: 8));
       if (existing.docs.isNotEmpty) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Username already taken')));
         return;
       }
-    } catch (e) {
-      // If Firestore query failed, show an informative message but don't block signup entirely
+    } on TimeoutException {
+      // Network is slow; inform user but continue (server rules should still protect duplicates if enforced)
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to verify username uniqueness. Try again.'),
-        ),
+        const SnackBar(content: Text('Username check timed out, continuing...')),
       );
-      return;
+    } catch (e) {
+      // Non-fatal: inform and continue
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not verify username, continuing...')),
+      );
     }
 
     setState(() => _isLoading = true);
@@ -102,40 +106,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
       final uid = cred.user?.uid;
       if (uid != null) {
-        try {
-          await FirebaseFirestore.instance.collection('users').doc(uid).set({
-            'displayName': fullName,
-            'email': email,
-            'username': username,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-          await cred.user?.updateDisplayName(fullName);
-          // Full success
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Account created successfully')),
-          );
-        } catch (fireErr) {
-          // Firestore write failed but auth succeeded
-          // Log and inform the user, but continue
-          // ignore: avoid_print
-          print('Firestore write failed for uid=$uid: $fireErr');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Account created but profile save failed: ${fireErr.toString()}',
-              ),
-            ),
-          );
-        }
+        // Kick off Firestore profile write and display name update in background (don't block navigation)
+        Future(() async {
+          try {
+            await FirebaseFirestore.instance.collection('users').doc(uid).set({
+              'displayName': fullName,
+              'email': email,
+              'username': username,
+              'createdAt': FieldValue.serverTimestamp(),
+            }).timeout(const Duration(seconds: 10));
+            await cred.user?.updateDisplayName(fullName);
+          } catch (fireErr) {
+            debugPrint('Background profile write failed for uid=$uid: $fireErr');
+          }
+        });
+        // Inform user immediately and navigate to Login
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account created. Please log in.')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+        return;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account created but no UID returned')),
         );
       }
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
     } on FirebaseAuthException catch (e) {
       String message = 'Failed to create account';
       switch (e.code) {
@@ -163,7 +162,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       // Any other error
       // ignore: avoid_print
-      print('Sign up unexpected error: $e');
+      debugPrint('Sign up unexpected error: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
