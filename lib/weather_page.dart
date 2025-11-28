@@ -3,6 +3,7 @@ import 'package:appdev_project/main.dart';
 import 'package:appdev_project/schedule_page.dart';
 import 'package:appdev_project/alerts_page.dart';
 import 'package:weather/weather.dart';
+import 'settings_page.dart';
 import 'package:intl/intl.dart';
 
 class WeatherPage extends StatefulWidget {
@@ -409,6 +410,11 @@ class _WeatherPageState extends State<WeatherPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => AcadEaseHome()),
+            );
+          } else if (label == "Settings" && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
             );
           }
         },

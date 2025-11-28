@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'services/user_repository.dart';
 import 'models/alert_item.dart' as models_alert;
 import 'package:intl/intl.dart';
+import 'settings_page.dart';
 
 class AlertsPage extends StatefulWidget {
   const AlertsPage({super.key});
@@ -19,17 +20,35 @@ class _AlertsPageState extends State<AlertsPage> {
   List<String> completedAlerts = [];
   List<String> snoozedAlerts = [];
 
-  void _markAsDone(String alertId) {
+  Future<void> _markAsDone(String alertId) async {
     setState(() {
       completedAlerts.add(alertId);
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Task marked as complete!'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,
-      ),
-    );
+    await Future.delayed(const Duration(milliseconds: 250));
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      try {
+        await UserRepository.instance.deleteAlert(uid, alertId);
+      } catch (e) {
+        // If deletion fails, revert fade state
+        completedAlerts.remove(alertId);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to remove alert: $e')),
+          );
+        }
+        return;
+      }
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Task marked as complete!'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 
   void _snoozeAlert(String alertId) {
@@ -121,25 +140,30 @@ class _AlertsPageState extends State<AlertsPage> {
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: alerts.map((a) {
-                        return Column(
-                          children: [
-                            _buildAlertItem(
-                              alertId: a.id,
-                              icon: a.category == 'assignment'
-                                  ? Icons.assignment
-                                  : Icons.list_alt,
-                              title: a.title,
-                              subtitle: a.body,
-                              time: DateFormat(
-                                'MMM d • h:mm a',
-                              ).format(a.createdAt),
-                              type: a.category,
-                              isOverdue:
-                                  a.category == 'assignment' &&
-                                  a.severity == 'high',
-                            ),
-                            SizedBox(height: 16),
-                          ],
+                        final faded = completedAlerts.contains(a.id);
+                        return AnimatedOpacity(
+                          duration: const Duration(milliseconds: 250),
+                          opacity: faded ? 0.0 : 1.0,
+                          child: Column(
+                            children: [
+                              _buildAlertItem(
+                                alertId: a.id,
+                                icon: a.category == 'assignment'
+                                    ? Icons.assignment
+                                    : Icons.list_alt,
+                                title: a.title,
+                                subtitle: a.body,
+                                time: DateFormat(
+                                  'MMM d • h:mm a',
+                                ).format(a.createdAt),
+                                type: a.category,
+                                isOverdue:
+                                    a.category == 'assignment' &&
+                                    a.severity == 'high',
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
                         );
                       }).toList(),
                     ),
@@ -513,6 +537,11 @@ class _AlertsPageState extends State<AlertsPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => AcadEaseHome()),
+            );
+          } else if (label == "Settings" && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
             );
           }
         },

@@ -212,10 +212,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 10),
 
                 // LOGO
-                Image.asset(
-                  'assets/images/logo.png',
-                  height: 80,
-                  fit: BoxFit.contain,
+                // Enlarged responsive logo
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final maxW = MediaQuery.of(context).size.width;
+                    final logoHeight = (maxW * 0.28).clamp(100, 180).toDouble();
+                    return Image.asset(
+                      'assets/images/logo.png',
+                      height: logoHeight,
+                      fit: BoxFit.contain,
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 20),

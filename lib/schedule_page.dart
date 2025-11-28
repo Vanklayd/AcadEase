@@ -7,6 +7,7 @@ import 'package:appdev_project/add_schedule_page.dart';
 import 'package:appdev_project/alerts_page.dart';
 import 'package:appdev_project/weather_page.dart';
 import 'package:appdev_project/main.dart';
+import 'settings_page.dart';
 
 class SchedulePage extends StatefulWidget {
   const SchedulePage({super.key});
@@ -185,13 +186,56 @@ class _SchedulePageState extends State<SchedulePage> {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     itemBuilder: (context, index) {
                       final e = todayEntries[index];
-                      return _buildClassCard(
-                        title: e.title,
-                        instructor: e.instructor,
-                        location: e.location,
-                        time: '${e.startTime} - ${e.endTime}',
-                        tag: e.tag ?? '',
-                        note: e.note,
+                      return Dismissible(
+                        key: ValueKey('${e.id}-${e.title}-${e.startTime}'),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          color: Colors.red[400],
+                          child: Icon(Icons.delete, color: Colors.white),
+                        ),
+                        confirmDismiss: (dir) async {
+                          return await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('Delete schedule'),
+                                  content: Text('Remove ${e.title}?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, true),
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              ) ?? false;
+                        },
+                        onDismissed: (_) async {
+                          final uid = FirebaseAuth.instance.currentUser?.uid;
+                          if (uid == null) return;
+                          try {
+                            await UserRepository.instance.deleteScheduleEntry(uid, e.id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Deleted ${e.title}')),
+                            );
+                          } catch (err) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Delete failed: $err')),
+                            );
+                          }
+                        },
+                        child: _buildClassCard(
+                          title: e.title,
+                          instructor: e.instructor,
+                          location: e.location,
+                          time: '${e.startTime} - ${e.endTime}',
+                          tag: e.tag ?? '',
+                          note: e.note,
+                        ),
                       );
                     },
                     separatorBuilder: (_, __) => SizedBox(height: 12),
@@ -390,6 +434,13 @@ class _SchedulePageState extends State<SchedulePage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (c) => AcadEaseHome()),
+            );
+            return;
+          }
+          if (label == 'Settings' && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (c) => const SettingsPage()),
             );
             return;
           }

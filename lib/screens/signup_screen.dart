@@ -196,12 +196,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset("assets/images/logo.png", height: 50),
-                  const SizedBox(width: 10),
-                  const Text(
-                    "AcadEase",
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final maxW = MediaQuery.of(context).size.width;
+                      final logoHeight = (maxW * 0.20).clamp(90, 150).toDouble();
+                      return Image.asset(
+                        "assets/images/logo.png",
+                        height: logoHeight,
+                        fit: BoxFit.contain,
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 14),
+                  const Flexible(
+                    child: Text(
+                      "AcadEase",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

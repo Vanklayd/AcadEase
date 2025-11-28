@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:appdev_project/schedule_page.dart';
 import 'package:appdev_project/alerts_page.dart';
 import 'package:appdev_project/weather_page.dart';
+import 'settings_page.dart';
 import 'screens/map_page.dart';
 import 'screens/login_screen.dart';
 import 'package:weather/weather.dart';
@@ -30,15 +31,51 @@ Future<void> main() async {
   runApp(MyApp(isSignedIn: currentUser != null));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final bool isSignedIn;
   const MyApp({super.key, this.isSignedIn = false});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  @override
+  void initState() {
+    super.initState();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      UserRepository.instance.streamSettings(uid).listen((data) {
+        final settings = (data?['settings'] as Map<String, dynamic>?) ?? {};
+        final dark = (settings['darkMode'] as bool?) ?? false;
+        if (mounted) setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: isSignedIn ? const AcadEaseHome() : const LoginScreen(),
+      themeMode: _themeMode,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        cardColor: const Color(0xFF1E1E1E),
+      ),
+      home: widget.isSignedIn ? const AcadEaseHome() : const LoginScreen(),
+      routes: {
+        '/schedule': (_) => const SchedulePage(),
+        '/alerts': (_) => const AlertsPage(),
+        '/weather': (_) => const WeatherPage(),
+        '/settings': (_) => const SettingsPage(),
+      },
     );
   }
 }
@@ -218,7 +255,16 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(width: 40), // Spacer for centering
+                      // Top-left icon navigates to Settings
+                      IconButton(
+                        icon: const Icon(Icons.settings_outlined, color: Colors.black),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SettingsPage()),
+                          );
+                        },
+                      ),
                       Text(
                         "AcadEase",
                         style: TextStyle(
@@ -861,6 +907,11 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => AcadEaseHome()),
+            );
+          } else if (label == "Settings" && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
             );
           }
         },

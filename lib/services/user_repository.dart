@@ -56,6 +56,33 @@ class UserRepository {
     await _alertsCol(uid).add(alert.toMap());
   }
 
+  Future<void> deleteScheduleEntry(String uid, String docId) async {
+    await _scheduleCol(uid).doc(docId).delete();
+  }
+
+  Future<void> deleteAssignment(String uid, String docId) async {
+    await _assignCol(uid).doc(docId).delete();
+  }
+
+  Future<void> deleteAlert(String uid, String docId) async {
+    await _alertsCol(uid).doc(docId).delete();
+  }
+
+  DocumentReference<Map<String, dynamic>> userDoc(String uid) =>
+      _db.collection('users').doc(uid);
+
+  Future<void> updateProfile(String uid, Map<String, dynamic> data) async {
+    await userDoc(uid).set(data, SetOptions(merge: true));
+  }
+
+  Stream<Map<String, dynamic>?> streamSettings(String uid) {
+    return userDoc(uid).snapshots().map((snap) => snap.data());
+  }
+
+  Future<void> updateSetting(String uid, String key, dynamic value) async {
+    await userDoc(uid).set({'settings': {key: value}}, SetOptions(merge: true));
+  }
+
   Stream<List<ScheduleEntry>> streamSchedule(String uid) {
     return _scheduleCol(uid)
         .orderBy('startDate')
