@@ -57,15 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .get();
-        if (doc.exists) {
-          // Optionally use profile data
-          final data = doc.data();
-          // For now we just print it to console for debugging
-          // ignore: avoid_print
+        final docRef = FirebaseFirestore.instance.collection('users').doc(uid);
+        final snapshot = await docRef.get();
+        if (snapshot.exists) {
+          final data = snapshot.data();
           debugPrint('Loaded user profile: $data');
         }
       }
@@ -155,22 +150,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isResetting = true);
     try {
-      // Check if any sign-in method exists for this email to avoid silent success confusion
-      final methods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(
-        emailToUse,
-      );
-      if (methods.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No account found for $emailToUse')),
-        );
-        return;
-      }
-
       await FirebaseAuth.instance.sendPasswordResetEmail(email: emailToUse);
-      debugPrint(
-        'Password reset email requested for $emailToUse (methods: $methods)',
-      );
+      debugPrint('Password reset email requested for $emailToUse');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

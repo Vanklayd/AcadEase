@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'models/schedule_entry.dart' as models;
+import 'models/assignment.dart' as models_assign;
+import 'services/user_repository.dart';
+import 'package:intl/intl.dart';
 
 class AddSchedulePage extends StatefulWidget {
   const AddSchedulePage({super.key});
@@ -12,6 +17,19 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
   List<String> selectedDays = ['M', 'W', 'F'];
   String selectedPriority = 'High';
   bool notificationsEnabled = true;
+  final TextEditingController _subjectController = TextEditingController();
+  final TextEditingController _profRoomController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
+  final TextEditingController _startTimeController = TextEditingController();
+  final TextEditingController _endTimeController = TextEditingController();
+  final TextEditingController _assignmentTitleController =
+      TextEditingController();
+  final TextEditingController _assignmentDescController =
+      TextEditingController();
+  final TextEditingController _assignmentDueController =
+      TextEditingController();
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +86,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     ),
                     SizedBox(height: 8),
                     TextField(
+                      controller: _subjectController,
                       decoration: InputDecoration(
                         hintText: 'Introduction to React Native',
                         border: OutlineInputBorder(
@@ -90,6 +109,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     ),
                     SizedBox(height: 8),
                     TextField(
+                      controller: _profRoomController,
                       decoration: InputDecoration(
                         hintText: 'Prof. A. Smith / Room 201',
                         border: OutlineInputBorder(
@@ -127,6 +147,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               ),
                               SizedBox(height: 8),
                               TextField(
+                                controller: _startDateController,
                                 decoration: InputDecoration(
                                   hintText: '09/04/2024',
                                   suffixIcon: Icon(
@@ -162,6 +183,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               ),
                               SizedBox(height: 8),
                               TextField(
+                                controller: _endDateController,
                                 decoration: InputDecoration(
                                   hintText: '12/15/2024',
                                   suffixIcon: Icon(
@@ -201,6 +223,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               ),
                               SizedBox(height: 8),
                               TextField(
+                                controller: _startTimeController,
                                 decoration: InputDecoration(
                                   hintText: '10:00 AM',
                                   suffixIcon: Icon(Icons.access_time, size: 20),
@@ -233,6 +256,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                               ),
                               SizedBox(height: 8),
                               TextField(
+                                controller: _endTimeController,
                                 decoration: InputDecoration(
                                   hintText: '11:30 AM',
                                   suffixIcon: Icon(Icons.access_time, size: 20),
@@ -316,6 +340,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     ),
                     SizedBox(height: 8),
                     TextField(
+                      controller: _assignmentTitleController,
                       decoration: InputDecoration(
                         hintText: 'Mobile App Project Proposal',
                         border: OutlineInputBorder(
@@ -338,6 +363,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     ),
                     SizedBox(height: 8),
                     TextField(
+                      controller: _assignmentDescController,
                       maxLines: 4,
                       decoration: InputDecoration(
                         hintText:
@@ -362,6 +388,7 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     ),
                     SizedBox(height: 8),
                     TextField(
+                      controller: _assignmentDueController,
                       decoration: InputDecoration(
                         hintText: '10/20/2024',
                         suffixIcon: Icon(Icons.calendar_today, size: 20),
@@ -433,7 +460,10 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     SizedBox(height: 16),
                     // Add new assignment link
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        // Focus assignment title for quick add
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
                       child: Text(
                         '+ Add new assignment',
                         style: TextStyle(
@@ -448,8 +478,115 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
+                        onPressed: () async {
+                          if (_isSaving) return;
+                          final user = FirebaseAuth.instance.currentUser;
+                          if (user == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Please sign in first')),
+                            );
+                            return;
+                          }
+
+                          // Basic validation
+                          if (_startDateController.text.trim().isEmpty ||
+                              _endDateController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Please enter start and end dates (MM/dd/yyyy)',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          setState(() {
+                            _isSaving = true;
+                          });
+
+                          try {
+                            String subject =
+                                _subjectController.text.trim().isEmpty
+                                ? 'Untitled Subject'
+                                : _subjectController.text.trim();
+                            String profRoom = _profRoomController.text.trim();
+
+                            DateTime startDate = DateFormat(
+                              'MM/dd/yyyy',
+                            ).parse(_startDateController.text.trim());
+                            DateTime endDate = DateFormat(
+                              'MM/dd/yyyy',
+                            ).parse(_endDateController.text.trim());
+
+                            final entry = models.ScheduleEntry(
+                              id: '',
+                              title: subject,
+                              instructor: profRoom,
+                              location: profRoom,
+                              startDate: startDate,
+                              endDate: endDate,
+                              startTime: _startTimeController.text.trim(),
+                              endTime: _endTimeController.text.trim(),
+                              days: selectedDays,
+                              tag: selectedReminder,
+                              note: null,
+                            );
+
+                            await UserRepository.instance.addScheduleEntry(
+                              user.uid,
+                              entry,
+                            );
+
+                            // If assignment title present, save assignment
+                            if (_assignmentTitleController.text
+                                .trim()
+                                .isNotEmpty) {
+                              DateTime due = DateFormat(
+                                'MM/dd/yyyy',
+                              ).parse(_assignmentDueController.text.trim());
+                              final assignment = models_assign.AssignmentItem(
+                                id: '',
+                                title: _assignmentTitleController.text.trim(),
+                                description: _assignmentDescController.text
+                                    .trim(),
+                                dueDate: due,
+                                priority: selectedPriority,
+                                notificationsEnabled: notificationsEnabled,
+                              );
+                              await UserRepository.instance.addAssignment(
+                                user.uid,
+                                assignment,
+                              );
+                            }
+
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text('Saved')));
+                            Navigator.pop(context, true);
+                          } on FormatException catch (_) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Invalid date format. Use MM/dd/yyyy',
+                                ),
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Failed to save: ${e.toString()}',
+                                ),
+                              ),
+                            );
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                _isSaving = false;
+                              });
+                            }
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF03A9F4),

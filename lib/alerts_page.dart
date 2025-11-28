@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:appdev_project/main.dart';
 import 'package:appdev_project/schedule_page.dart';
 import 'package:appdev_project/weather_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'services/user_repository.dart';
+import 'models/alert_item.dart' as models_alert;
+import 'package:intl/intl.dart';
 
 class AlertsPage extends StatefulWidget {
   const AlertsPage({super.key});
@@ -93,11 +97,54 @@ class _AlertsPageState extends State<AlertsPage> {
                 ],
               ),
             ),
-            // Alerts List
+            // Alerts List (real-time from Firestore)
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Column(children: _buildAlertsForTab()),
+              child: StreamBuilder<List<models_alert.AlertItem>>(
+                stream: (() {
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user == null)
+                    return Stream<List<models_alert.AlertItem>>.empty();
+                  return UserRepository.instance.streamAlerts(user.uid);
+                })(),
+                builder: (context, snap) {
+                  final alerts = snap.data ?? [];
+                  if (alerts.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(40),
+                        child: Text('No alerts'),
+                      ),
+                    );
+                  }
+
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: alerts.map((a) {
+                        return Column(
+                          children: [
+                            _buildAlertItem(
+                              alertId: a.id,
+                              icon: a.category == 'assignment'
+                                  ? Icons.assignment
+                                  : Icons.list_alt,
+                              title: a.title,
+                              subtitle: a.body,
+                              time: DateFormat(
+                                'MMM d • h:mm a',
+                              ).format(a.createdAt),
+                              type: a.category,
+                              isOverdue:
+                                  a.category == 'assignment' &&
+                                  a.severity == 'high',
+                            ),
+                            SizedBox(height: 16),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
               ),
             ),
             // Bottom Navigation

@@ -10,6 +10,8 @@ import 'package:weather/weather.dart';
 import 'package:intl/intl.dart';
 import 'config/google_api.dart';
 import 'utils/maps_injector.dart';
+import 'services/user_repository.dart';
+import 'models/schedule_entry.dart' as models;
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -483,8 +485,66 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
 
                         SizedBox(height: 22),
 
-                        // Today's Classes - Dynamic
-                        ..._buildTodayClasses(),
+                        // Today's Classes - Dynamic (from Firestore)
+                        StreamBuilder<List<models.ScheduleEntry>>(
+                          stream: (() {
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user == null)
+                              return Stream<List<models.ScheduleEntry>>.empty();
+                            return UserRepository.instance.streamSchedule(
+                              user.uid,
+                            );
+                          })(),
+                          builder: (context, snapshot) {
+                            final list = snapshot.data ?? [];
+                            if (list.isEmpty) {
+                              return Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 24),
+                                    child: Center(
+                                      child: Text('No classes for today'),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            // Convert entries into cards sorted by startTime
+                            list.sort(
+                              (a, b) => a.startTime.compareTo(b.startTime),
+                            );
+                            return Column(
+                              children: list.map((entry) {
+                                // derive time parts
+                                final parts = entry.startTime.split(' ');
+                                String time = parts.isNotEmpty
+                                    ? parts[0]
+                                    : entry.startTime;
+                                String period = parts.length > 1
+                                    ? parts[1]
+                                    : '';
+                                bool active = _isClassActive(
+                                  '${entry.startTime} - ${entry.endTime}',
+                                );
+                                return Column(
+                                  children: [
+                                    _buildClassCard(
+                                      time: time,
+                                      period: period,
+                                      title: entry.title,
+                                      instructor:
+                                          '${entry.instructor} | ${entry.location}',
+                                      type: entry.tag ?? '',
+                                      isActive: active,
+                                    ),
+                                    SizedBox(height: 12),
+                                  ],
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
 
                         SizedBox(height: 24),
                       ],
