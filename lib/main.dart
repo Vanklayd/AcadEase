@@ -50,7 +50,8 @@ class _MyAppState extends State<MyApp> {
       UserRepository.instance.streamSettings(uid).listen((data) {
         final settings = (data?['settings'] as Map<String, dynamic>?) ?? {};
         final dark = (settings['darkMode'] as bool?) ?? false;
-        if (mounted) setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+        if (mounted)
+          setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
       });
     }
   }
@@ -134,108 +135,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
   }
 
   // Sample subjects pool (same as schedule_page.dart)
-  final List<Map<String, dynamic>> subjectPool = const [
-    {
-      'title': 'Operating Systems',
-      'instructor': 'Prof. J. Cruz',
-      'location': 'CS Lab 201',
-    },
-    {
-      'title': 'Discrete Mathematics',
-      'instructor': 'Dr. M. Garcia',
-      'location': 'Rm 305',
-    },
-    {
-      'title': 'Data Structures',
-      'instructor': 'Engr. R. Santos',
-      'location': 'Lecture Hall 1',
-    },
-    {
-      'title': 'Web Development',
-      'instructor': 'Prof. A. Reyes',
-      'location': 'IT Lab 102',
-    },
-    {
-      'title': 'Database Systems',
-      'instructor': 'Dr. L. Torres',
-      'location': 'Rm 210',
-    },
-    {
-      'title': 'Computer Networks',
-      'instructor': 'Engr. P. Mendoza',
-      'location': 'CS Lab 203',
-    },
-    {
-      'title': 'Software Engineering',
-      'instructor': 'Prof. K. Villanueva',
-      'location': 'Rm 401',
-    },
-    {
-      'title': 'Mobile Development',
-      'instructor': 'Dr. S. Castillo',
-      'location': 'IT Lab 105',
-    },
-    {
-      'title': 'Machine Learning',
-      'instructor': 'Prof. D. Ramos',
-      'location': 'AI Lab 301',
-    },
-    {
-      'title': 'Artificial Intelligence',
-      'instructor': 'Dr. R. Flores',
-      'location': 'AI Lab 302',
-    },
-  ];
-
-  final List<String> tags = const ['Weekly', 'MWF', 'TTH', 'Daily'];
-  final List<String> types = const ['Lecture', 'Lab', 'Seminar', 'Workshop'];
-  final List<String> times = const [
-    '9:00 AM - 10:30 AM',
-    '11:00 AM - 12:00 PM',
-    '1:00 PM - 2:30 PM',
-    '2:00 PM - 3:30 PM',
-    '3:00 PM - 4:30 PM',
-    '4:00 PM - 5:30 PM',
-  ];
-
-  List<Map<String, dynamic>> _getScheduleForDay(DateTime date) {
-    // Generate deterministic random schedule based on date
-    int seed = date.year * 10000 + date.month * 100 + date.day;
-    // Number of classes for the day (2-4 classes)
-    int classCount = (seed % 3) + 2;
-
-    List<Map<String, dynamic>> schedule = [];
-    List<int> usedTimeSlots = [];
-
-    for (int i = 0; i < classCount; i++) {
-      int subjectIndex = (seed + i * 7) % subjectPool.length;
-      int timeSlotIndex = (seed + i * 3) % times.length;
-
-      // Avoid duplicate time slots
-      while (usedTimeSlots.contains(timeSlotIndex)) {
-        timeSlotIndex = (timeSlotIndex + 1) % times.length;
-      }
-      usedTimeSlots.add(timeSlotIndex);
-
-      int tagIndex = (seed + i * 5) % tags.length;
-      int typeIndex = (seed + i * 11) % types.length;
-
-      Map<String, dynamic> subject = subjectPool[subjectIndex];
-      schedule.add({
-        'timeSlot': timeSlotIndex,
-        'title': subject['title'],
-        'instructor': subject['instructor'],
-        'location': subject['location'],
-        'time': times[timeSlotIndex],
-        'tag': tags[tagIndex],
-        'type': types[typeIndex],
-      });
-    }
-
-    // Sort by time slot
-    schedule.sort((a, b) => a['timeSlot'].compareTo(b['timeSlot']));
-    return schedule;
-  }
+  // Legacy in-memory schedule generation removed; now solely using Firestore data.
 
   @override
   Widget build(BuildContext context) {
@@ -255,16 +155,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Top-left icon navigates to Settings
-                      IconButton(
-                        icon: const Icon(Icons.settings_outlined, color: Colors.black),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const SettingsPage()),
-                          );
-                        },
-                      ),
+                      SizedBox(width: 40), // Spacer for centering
                       Text(
                         "AcadEase",
                         style: TextStyle(
@@ -277,19 +168,38 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                       ),
                       Row(
                         children: [
-                          Icon(
-                            Icons.notifications_outlined,
-                            size: 26,
+                          IconButton(
+                            icon: Icon(Icons.notifications_outlined),
                             color: Colors.black,
+                            iconSize: 26,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AlertsPage(),
+                                ),
+                              );
+                            },
                           ),
                           SizedBox(width: 12),
-                          CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.grey[400],
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 20,
+                          InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SettingsPage(),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: Colors.grey[400],
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ],
@@ -579,8 +489,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                                       time: time,
                                       period: period,
                                       title: entry.title,
-                                      instructor:
-                                          '${entry.instructor} | ${entry.location}',
+                                      instructor: '${entry.instructor}',
                                       type: entry.tag ?? '',
                                       isActive: active,
                                     ),
@@ -651,25 +560,23 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                 ),
               ],
             ),
-            // Right-side floating traffic icon (vertically centered)
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: FloatingActionButton.small(
-                  heroTag: 'traffic_map_fab',
-                  tooltip: 'Open Traffic Map',
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  elevation: 4,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MapPage()),
-                    );
-                  },
-                  child: const Icon(Icons.traffic),
-                ),
+            // Traffic map FAB positioned above bottom nav (near Settings)
+            Positioned(
+              bottom: 96,
+              right: 16,
+              child: FloatingActionButton.small(
+                heroTag: 'traffic_map_fab',
+                tooltip: 'Open Traffic Map',
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                elevation: 4,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MapPage()),
+                  );
+                },
+                child: const Icon(Icons.traffic),
               ),
             ),
           ],
@@ -712,80 +619,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
     }
   }
 
-  List<Widget> _buildTodayClasses() {
-    DateTime today = DateTime.now();
-    List<Map<String, dynamic>> todaySchedule = _getScheduleForDay(today);
-
-    List<Widget> classWidgets = [];
-    bool hasActiveClass = false;
-
-    for (int i = 0; i < todaySchedule.length; i++) {
-      var classItem = todaySchedule[i];
-      String fullTime = classItem['time'];
-
-      // Parse time (e.g., "9:00 AM - 10:30 AM")
-      String startTime = fullTime.split(' - ')[0];
-      List<String> timeParts = startTime.split(' ');
-      String time = timeParts[0];
-      String period = timeParts[1];
-
-      bool isActive = _isClassActive(fullTime);
-      if (isActive) hasActiveClass = true;
-
-      classWidgets.add(
-        _buildClassCard(
-          time: time,
-          period: period,
-          title: classItem['title'],
-          instructor: '${classItem['instructor']} | ${classItem['location']}',
-          type: classItem['type'],
-          isActive: isActive,
-        ),
-      );
-
-      if (i < todaySchedule.length - 1) {
-        classWidgets.add(SizedBox(height: 12));
-      }
-    }
-
-    // If no class is currently active, mark the next upcoming class
-    if (!hasActiveClass && classWidgets.isNotEmpty) {
-      DateTime now = DateTime.now();
-      for (int i = 0; i < todaySchedule.length; i++) {
-        var classItem = todaySchedule[i];
-        String startTime = classItem['time'].split(' - ')[0];
-        try {
-          DateTime classStart = DateFormat('h:mm a').parse(startTime);
-          DateTime classStartFull = DateTime(
-            now.year,
-            now.month,
-            now.day,
-            classStart.hour,
-            classStart.minute,
-          );
-
-          if (now.isBefore(classStartFull)) {
-            // Rebuild this class card as active
-            List<String> timeParts = startTime.split(' ');
-            classWidgets[i * 2] = _buildClassCard(
-              time: timeParts[0],
-              period: timeParts[1],
-              title: classItem['title'],
-              instructor:
-                  '${classItem['instructor']} | ${classItem['location']}',
-              type: classItem['type'],
-              isActive: true,
-            );
-            break;
-          }
-        } catch (e) {
-          // Continue to next
-        }
-      }
-    }
-
-    return classWidgets;
-  }
+  // Removed legacy _buildTodayClasses method; Firestore streaming handles active/upcoming logic.
 
   Widget _buildClassCard({
     required String time,

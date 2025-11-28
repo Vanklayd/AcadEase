@@ -80,7 +80,9 @@ class UserRepository {
   }
 
   Future<void> updateSetting(String uid, String key, dynamic value) async {
-    await userDoc(uid).set({'settings': {key: value}}, SetOptions(merge: true));
+    await userDoc(uid).set({
+      'settings': {key: value},
+    }, SetOptions(merge: true));
   }
 
   Stream<List<ScheduleEntry>> streamSchedule(String uid) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:appdev_project/main.dart';
 import 'package:appdev_project/schedule_page.dart';
 import 'package:appdev_project/weather_page.dart';
@@ -19,6 +20,8 @@ class _AlertsPageState extends State<AlertsPage> {
   String selectedTab = 'Today';
   List<String> completedAlerts = [];
   List<String> snoozedAlerts = [];
+  late String _currentTime;
+  Timer? _clockTimer;
 
   Future<void> _markAsDone(String alertId) async {
     setState(() {
@@ -33,9 +36,9 @@ class _AlertsPageState extends State<AlertsPage> {
         // If deletion fails, revert fade state
         completedAlerts.remove(alertId);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to remove alert: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to remove alert: $e')));
         }
         return;
       }
@@ -78,7 +81,7 @@ class _AlertsPageState extends State<AlertsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '9:41',
+                    _currentTime,
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   Row(
@@ -228,6 +231,24 @@ class _AlertsPageState extends State<AlertsPage> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _currentTime = DateFormat('h:mm').format(DateTime.now());
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {
+        _currentTime = DateFormat('h:mm').format(DateTime.now());
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _clockTimer?.cancel();
+    super.dispose();
+  }
+
   Widget _buildTab(String label) {
     bool isSelected = selectedTab == label;
     return Expanded(
@@ -245,9 +266,7 @@ class _AlertsPageState extends State<AlertsPage> {
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(8),
-            color: isSelected
-                ? Color(0xFF03A9F4).withOpacity(0.05)
-                : Colors.white,
+            color: Colors.white,
           ),
           child: Text(
             label,

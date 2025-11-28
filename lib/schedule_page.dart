@@ -6,8 +6,8 @@ import 'models/schedule_entry.dart' as models;
 import 'package:appdev_project/add_schedule_page.dart';
 import 'package:appdev_project/alerts_page.dart';
 import 'package:appdev_project/weather_page.dart';
+import 'package:appdev_project/settings_page.dart';
 import 'package:appdev_project/main.dart';
-import 'settings_page.dart';
 
 class SchedulePage extends StatefulWidget {
   const SchedulePage({super.key});
@@ -187,51 +187,104 @@ class _SchedulePageState extends State<SchedulePage> {
                     itemBuilder: (context, index) {
                       final e = todayEntries[index];
                       return Dismissible(
-                        key: ValueKey('${e.id}-${e.title}-${e.startTime}'),
+                        key: Key(e.id),
                         direction: DismissDirection.endToStart,
                         background: Container(
                           alignment: Alignment.centerRight,
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          color: Colors.red[400],
+                          padding: EdgeInsets.only(right: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: Icon(Icons.delete, color: Colors.white),
                         ),
-                        confirmDismiss: (dir) async {
-                          return await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text('Delete schedule'),
-                                  content: Text('Remove ${e.title}?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, true),
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
+                        confirmDismiss: (direction) async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Delete class?'),
+                              content: Text(
+                                'Remove "${e.title}" from your schedule?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx, false),
+                                  child: Text('Cancel'),
                                 ),
-                              ) ?? false;
-                        },
-                        onDismissed: (_) async {
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: Text(
+                                    'Delete',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm != true) return false;
+
                           final uid = FirebaseAuth.instance.currentUser?.uid;
-                          if (uid == null) return;
-                          try {
-                            await UserRepository.instance.deleteScheduleEntry(uid, e.id);
+                          if (uid == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Deleted ${e.title}')),
+                              SnackBar(content: Text('Not signed in')),
                             );
+                            return false;
+                          }
+
+                          try {
+                            // Backup entry for undo
+                            final backup = models.ScheduleEntry(
+                              id: '',
+                              title: e.title,
+                              instructor: e.instructor,
+                              location: e.location,
+                              startDate: e.startDate,
+                              endDate: e.endDate,
+                              startTime: e.startTime,
+                              endTime: e.endTime,
+                              days: List<String>.from(e.days),
+                              tag: e.tag,
+                              note: e.note,
+                            );
+
+                            await UserRepository.instance.deleteScheduleEntry(
+                              uid,
+                              e.id,
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Class deleted'),
+                                action: SnackBarAction(
+                                  label: 'UNDO',
+                                  onPressed: () async {
+                                    try {
+                                      await UserRepository.instance
+                                          .addScheduleEntry(uid, backup);
+                                    } catch (err) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Restore failed: $err'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                            return true;
                           } catch (err) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Delete failed: $err')),
                             );
+                            return false;
                           }
                         },
                         child: _buildClassCard(
                           title: e.title,
-                          instructor: e.instructor,
-                          location: e.location,
+                          instructor: '${e.instructor} | ${e.location}',
                           time: '${e.startTime} - ${e.endTime}',
                           tag: e.tag ?? '',
                           note: e.note,
@@ -302,7 +355,6 @@ class _SchedulePageState extends State<SchedulePage> {
   Widget _buildClassCard({
     required String title,
     required String instructor,
-    required String location,
     required String time,
     required String tag,
     String? note,
@@ -351,10 +403,7 @@ class _SchedulePageState extends State<SchedulePage> {
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
           SizedBox(height: 4),
-          Text(
-            '$location  •  $time',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-          ),
+          Text(time, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
           if (note != null) ...[
             SizedBox(height: 12),
             Container(
@@ -416,6 +465,13 @@ class _SchedulePageState extends State<SchedulePage> {
     return Expanded(
       child: InkWell(
         onTap: () {
+          if (label == 'Schedule' && !isActive) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (c) => SchedulePage()),
+            );
+            return;
+          }
           if (label == 'Alerts' && !isActive) {
             Navigator.pushReplacement(
               context,
@@ -440,7 +496,7 @@ class _SchedulePageState extends State<SchedulePage> {
           if (label == 'Settings' && !isActive) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (c) => const SettingsPage()),
+              MaterialPageRoute(builder: (c) => SettingsPage()),
             );
             return;
           }

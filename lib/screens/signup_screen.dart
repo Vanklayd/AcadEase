@@ -201,7 +201,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   LayoutBuilder(
                     builder: (context, constraints) {
                       final maxW = MediaQuery.of(context).size.width;
-                      final logoHeight = (maxW * 0.20).clamp(90, 150).toDouble();
+                      final logoHeight = (maxW * 0.20)
+                          .clamp(90, 150)
+                          .toDouble();
                       return Image.asset(
                         "assets/images/logo.png",
                         height: logoHeight,

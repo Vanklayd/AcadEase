@@ -29,8 +29,9 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       await UserRepository.instance.updateSetting(uid, key, value);
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed: $e')));
     } finally {
       if (mounted) setState(() => _updating = false);
     }
@@ -39,9 +40,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _editProfile() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please sign in first.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please sign in first.')));
       return;
     }
     final nameController = TextEditingController(text: user.displayName ?? '');
@@ -97,13 +98,15 @@ class _SettingsPageState extends State<SettingsPage> {
         'username': result['username'],
       });
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Profile updated')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile updated')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Update failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Update failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _updating = false);
@@ -113,9 +116,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _changePassword() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please sign in first.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please sign in first.')));
       return;
     }
     final currentController = TextEditingController();
@@ -142,8 +145,14 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Update')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Update'),
+          ),
         ],
       ),
     );
@@ -160,16 +169,18 @@ class _SettingsPageState extends State<SettingsPage> {
       await user.reauthenticateWithCredential(credential);
       await user.updatePassword(newController.text);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password updated')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Password updated')));
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Auth error: ${e.message ?? e.code}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Auth error: ${e.message ?? e.code}')),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Update failed: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Update failed: $e')));
     } finally {
       if (mounted) setState(() => _updating = false);
     }
@@ -197,20 +208,32 @@ class _SettingsPageState extends State<SettingsPage> {
                 stream: UserRepository.instance.streamSettings(uid),
                 builder: (context, snap) {
                   final data = snap.data ?? {};
-                  final settings = (data['settings'] as Map<String, dynamic>?) ?? {};
+                  final settings =
+                      (data['settings'] as Map<String, dynamic>?) ?? {};
                   final darkMode = (settings['darkMode'] as bool?) ?? false;
-                  final pushNotifs = (settings['pushNotifications'] as bool?) ?? false;
-                  final emailNotifs = (settings['emailNotifications'] as bool?) ?? false;
+                  final pushNotifs =
+                      (settings['pushNotifications'] as bool?) ?? false;
+                  final emailNotifs =
+                      (settings['emailNotifications'] as bool?) ?? false;
 
                   return Column(
                     children: [
                       // Title bar
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Text('Settings', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                            Text(
+                              'Settings',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -241,19 +264,36 @@ class _SettingsPageState extends State<SettingsPage> {
                                 child: Text(
                                   (data['displayName'] as String?) ?? 'User',
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 24),
 
-                              const Text('Account', style: TextStyle(fontWeight: FontWeight.w700)),
+                              const Text(
+                                'Account',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
                               const SizedBox(height: 10),
-                              _tile(icon: Icons.person_outline, title: 'Edit Profile', onTap: _updating ? null : _editProfile),
+                              _tile(
+                                icon: Icons.person_outline,
+                                title: 'Edit Profile',
+                                onTap: _updating ? null : _editProfile,
+                              ),
                               _divider(),
-                              _tile(icon: Icons.lock_outline, title: 'Change Password', onTap: _updating ? null : _changePassword),
+                              _tile(
+                                icon: Icons.lock_outline,
+                                title: 'Change Password',
+                                onTap: _updating ? null : _changePassword,
+                              ),
 
                               const SizedBox(height: 24),
-                              const Text('App Preferences', style: TextStyle(fontWeight: FontWeight.w700)),
+                              const Text(
+                                'App Preferences',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
                               const SizedBox(height: 10),
                               _switchTile(
                                 icon: Icons.dark_mode_outlined,
@@ -263,20 +303,25 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
 
                               const SizedBox(height: 24),
-                              const Text('Notifications', style: TextStyle(fontWeight: FontWeight.w700)),
+                              const Text(
+                                'Notifications',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
                               const SizedBox(height: 10),
                               _switchTile(
                                 icon: Icons.notifications_none,
                                 title: 'Push Notifications',
                                 value: pushNotifs,
-                                onChanged: (v) => _updateSetting('pushNotifications', v),
+                                onChanged: (v) =>
+                                    _updateSetting('pushNotifications', v),
                               ),
                               _divider(),
                               _switchTile(
                                 icon: Icons.email_outlined,
                                 title: 'Email Notifications',
                                 value: emailNotifs,
-                                onChanged: (v) => _updateSetting('emailNotifications', v),
+                                onChanged: (v) =>
+                                    _updateSetting('emailNotifications', v),
                               ),
 
                               const SizedBox(height: 28),
@@ -286,7 +331,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                 child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF1976D2),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                   onPressed: _updating ? null : _logout,
                                   icon: const Icon(Icons.logout),
@@ -312,15 +359,38 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         child: SafeArea(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 8.0,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 _navItem(context, Icons.home, 'Home', false),
-                                _navItem(context, Icons.calendar_today, 'Schedule', false),
-                                _navItem(context, Icons.notifications_outlined, 'Alerts', false),
-                                _navItem(context, Icons.cloud_outlined, 'Weather', false),
-                                _navItem(context, Icons.settings_outlined, 'Settings', true),
+                                _navItem(
+                                  context,
+                                  Icons.calendar_today,
+                                  'Schedule',
+                                  false,
+                                ),
+                                _navItem(
+                                  context,
+                                  Icons.notifications_outlined,
+                                  'Alerts',
+                                  false,
+                                ),
+                                _navItem(
+                                  context,
+                                  Icons.cloud_outlined,
+                                  'Weather',
+                                  false,
+                                ),
+                                _navItem(
+                                  context,
+                                  Icons.settings_outlined,
+                                  'Settings',
+                                  true,
+                                ),
                               ],
                             ),
                           ),
@@ -334,7 +404,11 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _tile({required IconData icon, required String title, VoidCallback? onTap}) {
+  Widget _tile({
+    required IconData icon,
+    required String title,
+    VoidCallback? onTap,
+  }) {
     return ListTile(
       leading: Icon(icon, color: Colors.black87),
       title: Text(title),
@@ -359,14 +433,22 @@ class _SettingsPageState extends State<SettingsPage> {
       child: ListTile(
         leading: Icon(icon, color: Colors.black87),
         title: Text(title),
-        trailing: Switch(value: value, onChanged: _updating ? (_) {} : onChanged),
+        trailing: Switch(
+          value: value,
+          onChanged: _updating ? (_) {} : onChanged,
+        ),
       ),
     );
   }
 
   Widget _divider() => const Divider(height: 1);
 
-  Widget _navItem(BuildContext context, IconData icon, String label, bool isActive) {
+  Widget _navItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    bool isActive,
+  ) {
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -398,7 +480,11 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: isActive ? const Color(0xFF1976D2) : Colors.grey[600], size: 26),
+              Icon(
+                icon,
+                color: isActive ? const Color(0xFF1976D2) : Colors.grey[600],
+                size: 26,
+              ),
               const SizedBox(height: 4),
               Text(
                 label,
