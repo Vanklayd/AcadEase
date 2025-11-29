@@ -29,9 +29,7 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       await UserRepository.instance.updateSetting(uid, key, value);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
     } finally {
       if (mounted) setState(() => _updating = false);
     }
@@ -199,40 +197,46 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final uid = FirebaseAuth.instance.currentUser?.uid;
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final primary = theme.colorScheme.primary;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: uid == null
-            ? const Center(child: Text('Sign in to view settings'))
+            ? Center(child: Text('Sign in to view settings', style: text.bodyMedium)) // was bodyText2
             : StreamBuilder<Map<String, dynamic>?>(
                 stream: UserRepository.instance.streamSettings(uid),
                 builder: (context, snap) {
                   final data = snap.data ?? {};
-                  final settings =
-                      (data['settings'] as Map<String, dynamic>?) ?? {};
+                  final settings = (data['settings'] as Map<String, dynamic>?) ?? {};
                   final darkMode = (settings['darkMode'] as bool?) ?? false;
-                  final pushNotifs =
-                      (settings['pushNotifications'] as bool?) ?? false;
-                  final emailNotifs =
-                      (settings['emailNotifications'] as bool?) ?? false;
+                  final locationAccess = (settings['locationAccess'] as bool?) ?? true;
+                  final pushNotifs = (settings['pushNotifications'] as bool?) ?? false;
+                  final emailNotifs = (settings['emailNotifications'] as bool?) ?? false;
+                  final displayName = (data['displayName'] as String?) ?? 'User';
+
+                  // Compute initials for avatar
+                  String _initials(String name) {
+                    final parts = name.trim().split(RegExp(r'\s+'));
+                    if (parts.isEmpty) return 'U';
+                    final first = parts.first.isNotEmpty ? parts.first[0] : '';
+                    final last = parts.length > 1 && parts.last.isNotEmpty ? parts.last[0] : '';
+                    final result = (first + last).toUpperCase();
+                    return result.isEmpty ? 'U' : result;
+                  }
 
                   return Column(
                     children: [
                       // Title bar
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Text(
                               'Settings',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: text.titleLarge, // was headline6
                             ),
                           ],
                         ),
@@ -246,12 +250,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Name card
+                              // Name card with avatar
                               Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: theme.cardColor,
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
@@ -261,67 +265,148 @@ class _SettingsPageState extends State<SettingsPage> {
                                     ),
                                   ],
                                 ),
-                                child: Text(
-                                  (data['displayName'] as String?) ?? 'User',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: theme.colorScheme.primary,
+                                      child: Text(
+                                        _initials(displayName),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Flexible(
+                                      child: Text(
+                                        displayName,
+                                        style: text.titleLarge,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 24),
 
-                              const Text(
-                                'Account',
-                                style: TextStyle(fontWeight: FontWeight.w700),
-                              ),
+                              Text('Account', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
                               const SizedBox(height: 10),
                               _tile(
                                 icon: Icons.person_outline,
                                 title: 'Edit Profile',
                                 onTap: _updating ? null : _editProfile,
+                                theme: theme,
+                                text: text,
                               ),
-                              _divider(),
+                              _divider(theme),
                               _tile(
                                 icon: Icons.lock_outline,
                                 title: 'Change Password',
                                 onTap: _updating ? null : _changePassword,
+                                theme: theme,
+                                text: text,
                               ),
 
                               const SizedBox(height: 24),
-                              const Text(
-                                'App Preferences',
-                                style: TextStyle(fontWeight: FontWeight.w700),
-                              ),
+                              Text('App Preferences', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
                               const SizedBox(height: 10),
                               _switchTile(
                                 icon: Icons.dark_mode_outlined,
                                 title: 'Dark Mode',
                                 value: darkMode,
                                 onChanged: (v) => _updateSetting('darkMode', v),
+                                theme: theme,
+                                text: text,
                               ),
+                              _divider(theme),
+                              _languageTile(theme: theme, text: text),
 
                               const SizedBox(height: 24),
-                              const Text(
-                                'Notifications',
-                                style: TextStyle(fontWeight: FontWeight.w700),
+                              Text('Privacy & Permissions', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              const SizedBox(height: 10),
+                              _switchTile(
+                                icon: Icons.location_on_outlined,
+                                title: 'Location Access',
+                                value: locationAccess,
+                                onChanged: (v) => _updateSetting('locationAccess', v),
+                                theme: theme,
+                                text: text,
                               ),
+                              _divider(theme),
+
+                              const SizedBox(height: 24),
+                              Text('Notifications', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
                               const SizedBox(height: 10),
                               _switchTile(
                                 icon: Icons.notifications_none,
                                 title: 'Push Notifications',
                                 value: pushNotifs,
-                                onChanged: (v) =>
-                                    _updateSetting('pushNotifications', v),
+                                onChanged: (v) => _updateSetting('pushNotifications', v),
+                                theme: theme,
+                                text: text,
                               ),
-                              _divider(),
+                              _divider(theme),
                               _switchTile(
                                 icon: Icons.email_outlined,
                                 title: 'Email Notifications',
                                 value: emailNotifs,
-                                onChanged: (v) =>
-                                    _updateSetting('emailNotifications', v),
+                                onChanged: (v) => _updateSetting('emailNotifications', v),
+                                theme: theme,
+                                text: text,
+                              ),
+
+                              const SizedBox(height: 24),
+                              Text('Storage', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              const SizedBox(height: 10),
+                              _tile(
+                                icon: Icons.delete_outline,
+                                title: 'Clear Cache',
+                                onTap: _updating
+                                    ? null
+                                    : () {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Cache cleared')),
+                                        );
+                                      },
+                                theme: theme,
+                                text: text,
+                              ),
+
+                              const SizedBox(height: 24),
+                              Text('About', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              const SizedBox(height: 10),
+                              _tile(
+                                icon: Icons.info_outline,
+                                title: 'About AcadEase',
+                                onTap: () {
+                                  showAboutDialog(
+                                    context: context,
+                                    applicationName: 'AcadEase',
+                                    applicationVersion: '1.0.0',
+                                    applicationIcon: const Icon(Icons.school),
+                                    children: [
+                                      const Text('Your academic assistant for schedules, weather, and alerts.'),
+                                    ],
+                                  );
+                                },
+                                theme: theme,
+                                text: text,
+                              ),
+                              _divider(theme),
+                              _tile(
+                                icon: Icons.help_outline,
+                                title: 'Help & Support',
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Support: support@acadease.app')),
+                                  );
+                                },
+                                theme: theme,
+                                text: text,
                               ),
 
                               const SizedBox(height: 28),
@@ -330,10 +415,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                 height: 48,
                                 child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF1976D2),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                    backgroundColor: primary,          // blue
+                                    foregroundColor: Colors.white,     // ensure text/icon visible
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   ),
                                   onPressed: _updating ? null : _logout,
                                   icon: const Icon(Icons.logout),
@@ -345,10 +429,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
 
-                      // Bottom Navigation (consistent with other pages)
+                      // Bottom Navigation (kept white)
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Colors.white, // keep white to match other pages
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.08),
@@ -359,38 +443,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         child: SafeArea(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                              vertical: 8.0,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 _navItem(context, Icons.home, 'Home', false),
-                                _navItem(
-                                  context,
-                                  Icons.calendar_today,
-                                  'Schedule',
-                                  false,
-                                ),
-                                _navItem(
-                                  context,
-                                  Icons.notifications_outlined,
-                                  'Alerts',
-                                  false,
-                                ),
-                                _navItem(
-                                  context,
-                                  Icons.cloud_outlined,
-                                  'Weather',
-                                  false,
-                                ),
-                                _navItem(
-                                  context,
-                                  Icons.settings_outlined,
-                                  'Settings',
-                                  true,
-                                ),
+                                _navItem(context, Icons.calendar_today, 'Schedule', false),
+                                _navItem(context, Icons.notifications_outlined, 'Alerts', false),
+                                _navItem(context, Icons.cloud_outlined, 'Weather', false),
+                                _navItem(context, Icons.settings_outlined, 'Settings', true),
                               ],
                             ),
                           ),
@@ -407,15 +468,28 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _tile({
     required IconData icon,
     required String title,
+    required ThemeData theme,
+    required TextTheme text,
     VoidCallback? onTap,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.black87),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: theme.colorScheme.onSurface),
+        title: Text(title, style: text.bodyMedium), // was bodyText2
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
+      ),
     );
   }
 
@@ -424,16 +498,25 @@ class _SettingsPageState extends State<SettingsPage> {
     required String title,
     required bool value,
     required ValueChanged<bool> onChanged,
+    required ThemeData theme,
+    required TextTheme text,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: ListTile(
-        leading: Icon(icon, color: Colors.black87),
-        title: Text(title),
-        trailing: Switch(
+        leading: Icon(icon, color: theme.colorScheme.onSurface),
+        title: Text(title, style: text.bodyMedium), // was bodyText2
+        trailing: Switch.adaptive(
           value: value,
           onChanged: _updating ? (_) {} : onChanged,
         ),
@@ -441,7 +524,34 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _divider() => const Divider(height: 1);
+  Widget _languageTile({required ThemeData theme, required TextTheme text}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Icon(Icons.language, color: theme.colorScheme.onSurface),
+        title: Text('Language', style: text.bodyMedium), // was bodyText2
+        subtitle: Text('English', style: text.bodySmall), // was caption
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Language selection coming soon')),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _divider(ThemeData theme) => Divider(height: 16, color: Colors.grey[300]);
 
   Widget _navItem(
     BuildContext context,
@@ -454,25 +564,13 @@ class _SettingsPageState extends State<SettingsPage> {
         onTap: () {
           if (isActive) return;
           if (label == 'Home') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const AcadEaseHome()),
-            );
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AcadEaseHome()));
           } else if (label == 'Schedule') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const SchedulePage()),
-            );
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SchedulePage()));
           } else if (label == 'Alerts') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const AlertsPage()),
-            );
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AlertsPage()));
           } else if (label == 'Weather') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const WeatherPage()),
-            );
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const WeatherPage()));
           }
         },
         child: Container(

@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool obscurePassword = true;
   bool _isLoading = false;
   bool _isResetting = false;
+  bool _acceptedTerms = false; // <--- added
 
   @override
   void dispose() {
@@ -27,6 +28,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signIn() async {
+    if (!_acceptedTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please accept the Terms & Conditions.')),
+      );
+      return;
+    }
+
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     if (email.isEmpty || password.isEmpty) {
@@ -192,6 +200,50 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Show a scrollable terms & conditions dialog
+  void _showTerms() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Terms & Conditions'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'Welcome to AcadEase. By using this app you agree to the following:',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                SizedBox(height: 8),
+                Text('• You consent to the processing of your provided data to deliver app features.'),
+                Text('• You must keep your credentials secure and not share access.'),
+                Text('• The app provides information and assistance without guarantees.'),
+                Text('• Misuse may lead to account restrictions.'),
+                SizedBox(height: 8),
+                Text('For full details, contact support@acadease.app.'),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() => _acceptedTerms = true);
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('Accept'),
+          ),
+        ],
+      ),
+    );
+  }
+
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}");
     return emailRegex.hasMatch(email);
@@ -216,7 +268,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final maxW = MediaQuery.of(context).size.width;
-                    final logoHeight = (maxW * 0.28).clamp(100, 180).toDouble();
+                    // Smaller logo size
+                    final logoHeight = (maxW * 0.22).clamp(100, 160).toDouble();
                     return Image.asset(
                       'assets/images/logo.png',
                       height: logoHeight,
@@ -340,12 +393,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 10),
 
-                      // Login button
+                      // Terms & Conditions row
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _acceptedTerms,
+                            onChanged: (v) => setState(() => _acceptedTerms = v ?? false),
+                          ),
+                          const Expanded(
+                            child: Text(
+                              'I accept the Terms & Conditions',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _showTerms,
+                            child: const Text('View Terms'),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Login button (disabled until terms accepted)
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _signIn,
+                          onPressed: (_isLoading || !_acceptedTerms) ? null : _signIn,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             shape: RoundedRectangleBorder(
@@ -353,15 +428,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
+                              ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
                                   "Log In",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
+                                  style: TextStyle(color: Colors.white, fontSize: 16),
                                 ),
                         ),
                       ),

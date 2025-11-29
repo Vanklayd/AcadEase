@@ -14,6 +14,7 @@ import 'utils/maps_injector.dart';
 import 'services/user_repository.dart';
 import 'models/schedule_entry.dart' as models;
 import 'firebase_options.dart';
+import 'dart:async'; // added
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,42 +42,113 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.light;
+  StreamSubscription<User?>? _authSub;        // added
+  StreamSubscription<dynamic>? _settingsSub;  // added
 
   @override
   void initState() {
     super.initState();
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid != null) {
-      UserRepository.instance.streamSettings(uid).listen((data) {
-        final settings = (data?['settings'] as Map<String, dynamic>?) ?? {};
-        final dark = (settings['darkMode'] as bool?) ?? false;
-        if (mounted)
-          setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
-      });
-    }
+    // Rebind settings stream whenever auth state changes so dark mode reacts after login/logout.
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
+      _settingsSub?.cancel();
+      if (user != null) {
+        _settingsSub = UserRepository.instance.streamSettings(user.uid).listen((data) {
+          final settings = (data?['settings'] as Map<String, dynamic>?) ?? {};
+          final dark = (settings['darkMode'] as bool?) ?? false;
+          if (mounted) setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+        });
+      } else {
+        if (mounted) setState(() => _themeMode = ThemeMode.light);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _settingsSub?.cancel();
+    _authSub?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    const primaryBlue = Color(0xFF1976D2); // consistent blue
+    final lightScheme = ColorScheme.fromSeed(seedColor: primaryBlue, brightness: Brightness.light);
+    final darkScheme = ColorScheme.fromSeed(seedColor: primaryBlue, brightness: Brightness.dark);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,
       theme: ThemeData(
         brightness: Brightness.light,
+        colorScheme: lightScheme,
         scaffoldBackgroundColor: Colors.white,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryBlue,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
+        colorScheme: darkScheme,
         scaffoldBackgroundColor: const Color(0xFF121212),
         cardColor: const Color(0xFF1E1E1E),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryBlue,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
       ),
-      home: widget.isSignedIn ? const AcadEaseHome() : const LoginScreen(),
+      // Use SplashScreen as initial home, then route to LoginScreen
+      home: const _SplashScreen(),
       routes: {
         '/schedule': (_) => const SchedulePage(),
         '/alerts': (_) => const AlertsPage(),
         '/weather': (_) => const WeatherPage(),
         '/settings': (_) => const SettingsPage(),
       },
+    );
+  }
+}
+
+// Lightweight splash screen that waits ~1s then navigates to LoginScreen
+class _SplashScreen extends StatefulWidget {
+  const _SplashScreen({Key? key}) : super(key: key);
+
+  @override
+  State<_SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<_SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Image.asset(
+          'assets/images/applogo.png',
+          // modest size for splash; adjust if needed
+          width: 160,
+          height: 160,
+          fit: BoxFit.contain,
+        ),
+      ),
     );
   }
 }
@@ -140,7 +212,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFFFF),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // was hardcoded white
       body: SafeArea(
         child: Stack(
           children: [
@@ -392,20 +464,30 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                                 ),
                               ),
                               SizedBox(height: 16),
-                              Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFE3F2FD),
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "View Study Plan",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1976D2),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const SchedulePage(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFE3F2FD),
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "View Study Plan",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF1976D2),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -506,58 +588,6 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                     ),
                   ),
                 ),
-
-                // Bottom Navigation Bar
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 12,
-                        offset: Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 8.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildNavItem(context, Icons.home, "Home", true),
-                          _buildNavItem(
-                            context,
-                            Icons.calendar_today_outlined,
-                            "Schedule",
-                            false,
-                          ),
-                          _buildNavItem(
-                            context,
-                            Icons.notifications_outlined,
-                            "Alerts",
-                            false,
-                          ),
-                          _buildNavItem(
-                            context,
-                            Icons.cloud_outlined,
-                            "Weather",
-                            false,
-                          ),
-                          _buildNavItem(
-                            context,
-                            Icons.settings_outlined,
-                            "Settings",
-                            false,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
             // Traffic map FAB positioned above bottom nav (near Settings)
@@ -580,6 +610,54 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
               ),
             ),
           ],
+        ),
+      ),
+      // Add bottomNavigationBar so it's always visible and not lost inside the Column
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(context, Icons.home, "Home", true),
+                _buildNavItem(
+                  context,
+                  Icons.calendar_today_outlined,
+                  "Schedule",
+                  false,
+                ),
+                _buildNavItem(
+                  context,
+                  Icons.notifications_outlined,
+                  "Alerts",
+                  false,
+                ),
+                _buildNavItem(
+                  context,
+                  Icons.cloud_outlined,
+                  "Weather",
+                  false,
+                ),
+                _buildNavItem(
+                  context,
+                  Icons.settings_outlined,
+                  "Settings",
+                  false,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

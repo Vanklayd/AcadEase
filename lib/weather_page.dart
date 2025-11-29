@@ -163,41 +163,53 @@ class _WeatherPageState extends State<WeatherPage> {
                             ),
                           ),
                           SizedBox(height: 24),
-                          // Location placeholder box
+                          // Location placeholder box with PH map background
                           Container(
                             height: 400,
                             decoration: BoxDecoration(
-                              color: Colors.grey[50],
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: Colors.grey[300]!),
+                              image: DecorationImage(
+                                image: AssetImage('assets/images/phmap.jpg'),
+                                fit: BoxFit.cover,
+                                // bias toward the right so Manila and its arrow remain visible
+                                alignment: Alignment(0.6, -0.2),
+                              ),
                             ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    size: 48,
-                                    color: Color(0xFF03A9F4),
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    _weather?.areaName ?? 'Manila',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey[700],
+                            child: Container(
+                              // subtle white overlay to keep text readable without hiding map details
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.white.withOpacity(0.65),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
+                                      size: 48,
+                                      color: Color(0xFF03A9F4),
                                     ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    _weather?.country ?? 'Philippines',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[600],
+                                    SizedBox(height: 16),
+                                    Text(
+                                      _weather?.areaName ?? 'Manila',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[700],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(height: 8),
+                                    Text(
+                                      _weather?.country ?? 'Philippines',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
