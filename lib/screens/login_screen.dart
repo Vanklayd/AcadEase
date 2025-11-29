@@ -217,9 +217,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 SizedBox(height: 8),
-                Text('• You consent to the processing of your provided data to deliver app features.'),
-                Text('• You must keep your credentials secure and not share access.'),
-                Text('• The app provides information and assistance without guarantees.'),
+                Text(
+                  '• You consent to the processing of your provided data to deliver app features.',
+                ),
+                Text(
+                  '• You must keep your credentials secure and not share access.',
+                ),
+                Text(
+                  '• The app provides information and assistance without guarantees.',
+                ),
                 Text('• Misuse may lead to account restrictions.'),
                 SizedBox(height: 8),
                 Text('For full details, contact support@acadease.app.'),
@@ -398,7 +404,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Checkbox(
                             value: _acceptedTerms,
-                            onChanged: (v) => setState(() => _acceptedTerms = v ?? false),
+                            onChanged: (v) =>
+                                setState(() => _acceptedTerms = v ?? false),
                           ),
                           const Expanded(
                             child: Text(
@@ -420,7 +427,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: (_isLoading || !_acceptedTerms) ? null : _signIn,
+                          onPressed: (_isLoading || !_acceptedTerms)
+                              ? null
+                              : _signIn,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             shape: RoundedRectangleBorder(
@@ -428,10 +437,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
                               : const Text(
                                   "Log In",
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
                         ),
                       ),

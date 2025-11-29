@@ -42,8 +42,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.light;
-  StreamSubscription<User?>? _authSub;        // added
-  StreamSubscription<dynamic>? _settingsSub;  // added
+  StreamSubscription<User?>? _authSub; // added
+  StreamSubscription<dynamic>? _settingsSub; // added
 
   @override
   void initState() {
@@ -52,10 +52,15 @@ class _MyAppState extends State<MyApp> {
     _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
       _settingsSub?.cancel();
       if (user != null) {
-        _settingsSub = UserRepository.instance.streamSettings(user.uid).listen((data) {
+        _settingsSub = UserRepository.instance.streamSettings(user.uid).listen((
+          data,
+        ) {
           final settings = (data?['settings'] as Map<String, dynamic>?) ?? {};
           final dark = (settings['darkMode'] as bool?) ?? false;
-          if (mounted) setState(() => _themeMode = dark ? ThemeMode.dark : ThemeMode.light);
+          if (mounted)
+            setState(
+              () => _themeMode = dark ? ThemeMode.dark : ThemeMode.light,
+            );
         });
       } else {
         if (mounted) setState(() => _themeMode = ThemeMode.light);
@@ -73,8 +78,14 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     const primaryBlue = Color(0xFF1976D2); // consistent blue
-    final lightScheme = ColorScheme.fromSeed(seedColor: primaryBlue, brightness: Brightness.light);
-    final darkScheme = ColorScheme.fromSeed(seedColor: primaryBlue, brightness: Brightness.dark);
+    final lightScheme = ColorScheme.fromSeed(
+      seedColor: primaryBlue,
+      brightness: Brightness.light,
+    );
+    final darkScheme = ColorScheme.fromSeed(
+      seedColor: primaryBlue,
+      brightness: Brightness.dark,
+    );
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -87,7 +98,9 @@ class _MyAppState extends State<MyApp> {
           style: ElevatedButton.styleFrom(
             backgroundColor: primaryBlue,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       ),
@@ -100,7 +113,9 @@ class _MyAppState extends State<MyApp> {
           style: ElevatedButton.styleFrom(
             backgroundColor: primaryBlue,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       ),
@@ -212,7 +227,9 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // was hardcoded white
+      backgroundColor: Theme.of(
+        context,
+      ).scaffoldBackgroundColor, // was hardcoded white
       body: SafeArea(
         child: Stack(
           children: [
@@ -643,12 +660,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                   "Alerts",
                   false,
                 ),
-                _buildNavItem(
-                  context,
-                  Icons.cloud_outlined,
-                  "Weather",
-                  false,
-                ),
+                _buildNavItem(context, Icons.cloud_outlined, "Weather", false),
                 _buildNavItem(
                   context,
                   Icons.settings_outlined,
