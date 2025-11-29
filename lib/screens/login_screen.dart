@@ -205,32 +205,164 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Terms & Conditions'),
+        title: const Text('AcadEase – Terms and Conditions'),
         content: SizedBox(
           width: double.maxFinite,
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Welcome to AcadEase. By using this app you agree to the following:',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  '• You consent to the processing of your provided data to deliver app features.',
-                ),
-                Text(
-                  '• You must keep your credentials secure and not share access.',
-                ),
-                Text(
-                  '• The app provides information and assistance without guarantees.',
-                ),
-                Text('• Misuse may lead to account restrictions.'),
-                SizedBox(height: 8),
-                Text('For full details, contact support@acadease.app.'),
-              ],
-            ),
+            child: const Text('''AcadEase – Terms and Conditions
+
+Last Updated: November 30, 2025
+Effective Date: December 1, 2025
+
+Welcome to AcadEase, a mobile application designed to help students manage academic schedules, reminders, productivity tasks, and real-time updates in one unified platform. By downloading, accessing, or using AcadEase, you agree to comply with and be bound by the following Terms and Conditions. Please read them carefully.
+
+If you do not agree with these terms, you must discontinue using the application.
+
+1. Definitions
+
+“App” refers to the AcadEase mobile application.
+
+“Developers” / “We” / “Us” refers to the creators of AcadEase: Joseph Mari S. Cordero and Ivan Clyde P. Sagala.
+
+“User” / “You” refers to any individual who downloads, installs, or uses the app.
+
+“Services” include academic scheduling, reminders, weather updates, traffic information, study timers, and other app features.
+
+2. Use of the App
+
+By using AcadEase, you agree to:
+- Use the app solely for lawful, academic, and personal productivity purposes.
+- Provide accurate information when entering schedules, reminders, and settings.
+- Avoid any misuse of the app, including interference with system functions or reverse engineering.
+- Accept that the app is currently in its developmental stage and may contain limitations or incomplete features.
+
+3. User Accounts (If Implemented)
+
+AcadEase may utilize account systems (e.g., Firebase Authentication). If authentication features are enabled:
+- You are responsible for maintaining the confidentiality of your login credentials.
+- You agree not to share your account with others.
+- The developers reserve the right to suspend accounts that violate these terms.
+
+4. Data Collection and Storage
+
+AcadEase may store the following data types locally on the device:
+- Class schedules
+- Assignments and reminders
+- User preferences (theme, notifications, timer settings)
+- Cached weather or traffic data
+
+If cloud storage integration is implemented (e.g., Firebase):
+- User data may be synchronized to cloud databases for backup and multi-device access.
+
+The app may access:
+- Location data for traffic and weather features
+- Internet connectivity for retrieving external API information
+
+You agree to allow the app to access these services for full functionality.
+For more details, refer to the Privacy Policy (can be drafted separately upon request).
+
+5. Permissions
+
+AcadEase may request the following permissions depending on the feature:
+- Notifications – for reminders and alerts
+- Location access – for traffic updates and localized weather
+- Internet access – for external API calls
+- Local storage/database – for saving schedules and settings
+
+By granting permissions, you allow AcadEase to use them solely for its intended academic support features.
+You may decline permissions, but some features may stop working as intended.
+
+6. Third-Party Services
+
+AcadEase uses third-party APIs such as:
+- OpenWeatherMap API – weather updates
+- Google Maps API – traffic and location information
+- Firebase services (optional) – authentication, cloud storage, notifications
+
+You acknowledge that:
+- These external services have their own terms and privacy policies.
+- Data accuracy depends on third-party providers and may not always be precise.
+- API downtime, rate limits, or outages may affect app functionality.
+
+7. Limitations of Service
+
+Based on the current system architecture, the app may experience:
+- Inconsistent reminders due to background process restrictions (Android/iOS)
+- Possible data loss if cloud backup is not enabled
+- Limited offline functionality (weather & traffic require internet)
+- Battery usage increases when using location services
+- Reduced performance on older or low-memory devices
+- Lack of automatic integration with university systems (manual data entry required)
+
+By using the app, you acknowledge these limitations.
+
+8. Intellectual Property Rights
+
+All content, code, UI designs, architecture diagrams, and graphics within AcadEase are the property of the developers unless otherwise stated.
+
+You are prohibited from:
+- Copying or redistributing source code
+- Attempting to decompile or reverse-engineer the app
+- Modifying or reproducing the app for commercial use without permission
+
+9. Disclaimer of Warranties
+
+AcadEase is provided “as is” and “as available” without guarantees of:
+- Uninterrupted or error-free operations
+- Accurate weather, traffic, or schedule reminders
+- Compatibility with all devices or OS versions
+- Prevention of data loss
+
+The developers make no warranties, expressed or implied.
+
+10. Limitation of Liability
+
+To the fullest extent allowed by law:
+- The developers are not liable for missed deadlines, missed classes, scheduling errors, or academic consequences resulting from app usage.
+- The developers are not responsible for damages caused by reliance on weather/traffic data or system notifications.
+- The developers are not liable for data breaches occurring due to third-party API vulnerabilities.
+
+Your usage is fully at your own risk.
+
+11. User Responsibilities
+
+You agree to:
+- Regularly double-check your schedules and reminders
+- Keep your device updated to ensure smooth app performance
+- Use the app responsibly and avoid entering false or harmful data
+- Monitor your permissions and privacy settings
+
+12. Updates and Modifications
+
+The developers may:
+- Update the app to fix bugs or improve features
+- Modify, remove, or replace features at any time
+- Change these Terms and Conditions as needed
+
+Continued use after updates constitutes acceptance of the revised terms.
+
+13. Termination
+
+We reserve the right to terminate or restrict app access if a user:
+- Violates these Terms
+- Misuses system features
+- Attempts to exploit, hack, or damage the app
+
+Users may uninstall the app at any time.
+
+14. Governing Law
+
+These Terms are governed by the laws of the Republic of the Philippines, unless otherwise specified.
+
+15. Contact Information
+
+For concerns, issues, or inquiries related to AcadEase:
+
+Developers:
+- Joseph Mari S. Cordero
+- Ivan Clyde P. Sagala
+
+Github: https://github.com/Vanklayd/AcadEase'''),
           ),
         ),
         actions: [
