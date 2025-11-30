@@ -29,7 +29,9 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       await UserRepository.instance.updateSetting(uid, key, value);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed: $e')));
     } finally {
       if (mounted) setState(() => _updating = false);
     }
@@ -204,24 +206,33 @@ class _SettingsPageState extends State<SettingsPage> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: uid == null
-            ? Center(child: Text('Sign in to view settings', style: text.bodyMedium)) // was bodyText2
+            ? Center(
+                child: Text('Sign in to view settings', style: text.bodyMedium),
+              ) // was bodyText2
             : StreamBuilder<Map<String, dynamic>?>(
                 stream: UserRepository.instance.streamSettings(uid),
                 builder: (context, snap) {
                   final data = snap.data ?? {};
-                  final settings = (data['settings'] as Map<String, dynamic>?) ?? {};
+                  final settings =
+                      (data['settings'] as Map<String, dynamic>?) ?? {};
                   final darkMode = (settings['darkMode'] as bool?) ?? false;
-                  final locationAccess = (settings['locationAccess'] as bool?) ?? true;
-                  final pushNotifs = (settings['pushNotifications'] as bool?) ?? false;
-                  final emailNotifs = (settings['emailNotifications'] as bool?) ?? false;
-                  final displayName = (data['displayName'] as String?) ?? 'User';
+                  final locationAccess =
+                      (settings['locationAccess'] as bool?) ?? true;
+                  final pushNotifs =
+                      (settings['pushNotifications'] as bool?) ?? false;
+                  final emailNotifs =
+                      (settings['emailNotifications'] as bool?) ?? false;
+                  final displayName =
+                      (data['displayName'] as String?) ?? 'User';
 
                   // Compute initials for avatar
                   String _initials(String name) {
                     final parts = name.trim().split(RegExp(r'\s+'));
                     if (parts.isEmpty) return 'U';
                     final first = parts.first.isNotEmpty ? parts.first[0] : '';
-                    final last = parts.length > 1 && parts.last.isNotEmpty ? parts.last[0] : '';
+                    final last = parts.length > 1 && parts.last.isNotEmpty
+                        ? parts.last[0]
+                        : '';
                     final result = (first + last).toUpperCase();
                     return result.isEmpty ? 'U' : result;
                   }
@@ -230,7 +241,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       // Title bar
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -241,7 +255,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                         ),
                       ),
-                      Divider(color: Colors.grey[300], thickness: 1, height: 1),
+                      Divider(
+                        color: Theme.of(context).dividerColor,
+                        thickness: 1,
+                        height: 1,
+                      ),
 
                       // Content
                       Expanded(
@@ -271,7 +289,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                   children: [
                                     CircleAvatar(
                                       radius: 24,
-                                      backgroundColor: theme.colorScheme.primary,
+                                      backgroundColor:
+                                          theme.colorScheme.primary,
                                       child: Text(
                                         _initials(displayName),
                                         style: const TextStyle(
@@ -293,7 +312,12 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                               const SizedBox(height: 24),
 
-                              Text('Account', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              Text(
+                                'Account',
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ), // was subtitle1
                               const SizedBox(height: 10),
                               _tile(
                                 icon: Icons.person_outline,
@@ -312,7 +336,12 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
 
                               const SizedBox(height: 24),
-                              Text('App Preferences', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              Text(
+                                'App Preferences',
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ), // was subtitle1
                               const SizedBox(height: 10),
                               _switchTile(
                                 icon: Icons.dark_mode_outlined,
@@ -326,26 +355,38 @@ class _SettingsPageState extends State<SettingsPage> {
                               _languageTile(theme: theme, text: text),
 
                               const SizedBox(height: 24),
-                              Text('Privacy & Permissions', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              Text(
+                                'Privacy & Permissions',
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ), // was subtitle1
                               const SizedBox(height: 10),
                               _switchTile(
                                 icon: Icons.location_on_outlined,
                                 title: 'Location Access',
                                 value: locationAccess,
-                                onChanged: (v) => _updateSetting('locationAccess', v),
+                                onChanged: (v) =>
+                                    _updateSetting('locationAccess', v),
                                 theme: theme,
                                 text: text,
                               ),
                               _divider(theme),
 
                               const SizedBox(height: 24),
-                              Text('Notifications', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              Text(
+                                'Notifications',
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ), // was subtitle1
                               const SizedBox(height: 10),
                               _switchTile(
                                 icon: Icons.notifications_none,
                                 title: 'Push Notifications',
                                 value: pushNotifs,
-                                onChanged: (v) => _updateSetting('pushNotifications', v),
+                                onChanged: (v) =>
+                                    _updateSetting('pushNotifications', v),
                                 theme: theme,
                                 text: text,
                               ),
@@ -354,13 +395,19 @@ class _SettingsPageState extends State<SettingsPage> {
                                 icon: Icons.email_outlined,
                                 title: 'Email Notifications',
                                 value: emailNotifs,
-                                onChanged: (v) => _updateSetting('emailNotifications', v),
+                                onChanged: (v) =>
+                                    _updateSetting('emailNotifications', v),
                                 theme: theme,
                                 text: text,
                               ),
 
                               const SizedBox(height: 24),
-                              Text('Storage', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              Text(
+                                'Storage',
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ), // was subtitle1
                               const SizedBox(height: 10),
                               _tile(
                                 icon: Icons.delete_outline,
@@ -368,8 +415,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                 onTap: _updating
                                     ? null
                                     : () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Cache cleared')),
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Cache cleared'),
+                                          ),
                                         );
                                       },
                                 theme: theme,
@@ -377,7 +428,12 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
 
                               const SizedBox(height: 24),
-                              Text('About', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)), // was subtitle1
+                              Text(
+                                'About',
+                                style: text.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ), // was subtitle1
                               const SizedBox(height: 10),
                               _tile(
                                 icon: Icons.info_outline,
@@ -389,7 +445,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                     applicationVersion: '1.0.0',
                                     applicationIcon: const Icon(Icons.school),
                                     children: [
-                                      const Text('Your academic assistant for schedules, weather, and alerts.'),
+                                      const Text(
+                                        'Your academic assistant for schedules, weather, and alerts.',
+                                      ),
                                     ],
                                   );
                                 },
@@ -402,7 +460,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                 title: 'Help & Support',
                                 onTap: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Support: support@acadease.app')),
+                                    const SnackBar(
+                                      content: Text(
+                                        'Support: support@acadease.app',
+                                      ),
+                                    ),
                                   );
                                 },
                                 theme: theme,
@@ -415,9 +477,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                 height: 48,
                                 child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: primary,          // blue
-                                    foregroundColor: Colors.white,     // ensure text/icon visible
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    backgroundColor: primary, // blue
+                                    foregroundColor: Colors
+                                        .white, // ensure text/icon visible
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                   onPressed: _updating ? null : _logout,
                                   icon: const Icon(Icons.logout),
@@ -429,29 +494,71 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
 
-                      // Bottom Navigation (kept white)
+                      // Bottom Navigation (themed to adapt dark mode)
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white, // keep white to match other pages
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 12,
-                              offset: const Offset(0, -2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface, // themed background
+                          boxShadow:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.4),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, -2),
+                                  ),
+                                ]
+                              : [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, -2),
+                                  ),
+                                ],
+                          border: Border(
+                            top: BorderSide(
+                              color: Theme.of(
+                                context,
+                              ).dividerColor.withOpacity(0.5),
+                              width: 0.5,
                             ),
-                          ],
+                          ),
                         ),
                         child: SafeArea(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 8.0,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 _navItem(context, Icons.home, 'Home', false),
-                                _navItem(context, Icons.calendar_today, 'Schedule', false),
-                                _navItem(context, Icons.notifications_outlined, 'Alerts', false),
-                                _navItem(context, Icons.cloud_outlined, 'Weather', false),
-                                _navItem(context, Icons.settings_outlined, 'Settings', true),
+                                _navItem(
+                                  context,
+                                  Icons.calendar_today,
+                                  'Schedule',
+                                  false,
+                                ),
+                                _navItem(
+                                  context,
+                                  Icons.notifications_outlined,
+                                  'Alerts',
+                                  false,
+                                ),
+                                _navItem(
+                                  context,
+                                  Icons.cloud_outlined,
+                                  'Weather',
+                                  false,
+                                ),
+                                _navItem(
+                                  context,
+                                  Icons.settings_outlined,
+                                  'Settings',
+                                  true,
+                                ),
                               ],
                             ),
                           ),
@@ -551,7 +658,8 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _divider(ThemeData theme) => Divider(height: 16, color: Colors.grey[300]);
+  Widget _divider(ThemeData theme) =>
+      Divider(height: 16, color: theme.dividerColor);
 
   Widget _navItem(
     BuildContext context,
@@ -559,18 +667,31 @@ class _SettingsPageState extends State<SettingsPage> {
     String label,
     bool isActive,
   ) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Expanded(
       child: InkWell(
         onTap: () {
           if (isActive) return;
           if (label == 'Home') {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AcadEaseHome()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const AcadEaseHome()),
+            );
           } else if (label == 'Schedule') {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SchedulePage()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const SchedulePage()),
+            );
           } else if (label == 'Alerts') {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AlertsPage()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const AlertsPage()),
+            );
           } else if (label == 'Weather') {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const WeatherPage()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const WeatherPage()),
+            );
           }
         },
         child: Container(
@@ -580,7 +701,9 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Icon(
                 icon,
-                color: isActive ? const Color(0xFF1976D2) : Colors.grey[600],
+                color: isActive
+                    ? const Color(0xFF1976D2)
+                    : onSurface.withOpacity(0.7),
                 size: 26,
               ),
               const SizedBox(height: 4),
@@ -588,7 +711,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isActive ? const Color(0xFF1976D2) : Colors.grey[600],
+                  color: isActive
+                      ? const Color(0xFF1976D2)
+                      : onSurface.withOpacity(0.7),
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

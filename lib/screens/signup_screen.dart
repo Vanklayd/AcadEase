@@ -188,135 +188,144 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final maxW = MediaQuery.of(context).size.width;
-                      // Further reduced size (was 0.20 clamp 95–150)
-                      final logoHeight = (maxW * 0.18)
-                          .clamp(80, 130)
-                          .toDouble();
-                      return Image.asset(
-                        "assets/images/logo.png",
-                        height: logoHeight,
-                        fit: BoxFit.contain,
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 14),
-                  const Flexible(
-                    child: Text(
-                      "AcadEase",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 30),
-
-              const Text("Full Name"),
-              const SizedBox(height: 6),
-              _buildTextField(
-                controller: _fullNameController,
-                hint: "Enter your full name",
-              ),
-              const SizedBox(height: 20),
-
-              const Text("Email"),
-              const SizedBox(height: 6),
-              _buildTextField(
-                controller: _emailController,
-                hint: "Enter your email address",
-              ),
-              const SizedBox(height: 20),
-
-              const Text("Username"),
-              const SizedBox(height: 6),
-              _buildTextField(
-                controller: _usernameController,
-                hint: "Choose a username",
-              ),
-              const SizedBox(height: 20),
-
-              const Text("Password"),
-              const SizedBox(height: 6),
-              _buildTextField(
-                controller: _passwordController,
-                hint: "Create a strong password",
-                obscure: true,
-              ),
-              const SizedBox(height: 20),
-
-              const Text("Repeat Password"),
-              const SizedBox(height: 6),
-              _buildTextField(
-                controller: _repeatPasswordController,
-                hint: "Re-enter your password",
-                obscure: true,
-              ),
-              const SizedBox(height: 30),
-
-              OutlinedButton(
-                onPressed: _isLoading ? null : _signUp,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  side: const BorderSide(color: Colors.blueAccent),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(),
-                      )
-                    : const Text(
-                        "Sign Up",
-                        style: TextStyle(color: Colors.blueAccent),
-                      ),
-              ),
-              const SizedBox(height: 20),
-
-              Center(
-                child: Column(
+    return Theme(
+      data: Theme.of(context).copyWith(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: Theme.of(
+          context,
+        ).colorScheme.copyWith(brightness: Brightness.light),
+      ),
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text("Already have an account?"),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const LoginScreen(),
-                          ),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final maxW = MediaQuery.of(context).size.width;
+                        // Further reduced size (was 0.20 clamp 95–150)
+                        final logoHeight = (maxW * 0.18)
+                            .clamp(80, 130)
+                            .toDouble();
+                        return Image.asset(
+                          "assets/images/logo.png",
+                          height: logoHeight,
+                          fit: BoxFit.contain,
                         );
                       },
-                      child: const Text(
-                        "Log In",
+                    ),
+                    const SizedBox(width: 14),
+                    const Flexible(
+                      child: Text(
+                        "AcadEase",
                         style: TextStyle(
-                          color: Colors.black87,
+                          fontSize: 32,
                           fontWeight: FontWeight.bold,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 30),
+
+                const Text("Full Name"),
+                const SizedBox(height: 6),
+                _buildTextField(
+                  controller: _fullNameController,
+                  hint: "Enter your full name",
+                ),
+                const SizedBox(height: 20),
+
+                const Text("Email"),
+                const SizedBox(height: 6),
+                _buildTextField(
+                  controller: _emailController,
+                  hint: "Enter your email address",
+                ),
+                const SizedBox(height: 20),
+
+                const Text("Username"),
+                const SizedBox(height: 6),
+                _buildTextField(
+                  controller: _usernameController,
+                  hint: "Choose a username",
+                ),
+                const SizedBox(height: 20),
+
+                const Text("Password"),
+                const SizedBox(height: 6),
+                _buildTextField(
+                  controller: _passwordController,
+                  hint: "Create a strong password",
+                  obscure: true,
+                ),
+                const SizedBox(height: 20),
+
+                const Text("Repeat Password"),
+                const SizedBox(height: 6),
+                _buildTextField(
+                  controller: _repeatPasswordController,
+                  hint: "Re-enter your password",
+                  obscure: true,
+                ),
+                const SizedBox(height: 30),
+
+                OutlinedButton(
+                  onPressed: _isLoading ? null : _signUp,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    side: const BorderSide(color: Colors.blueAccent),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text(
+                          "Sign Up",
+                          style: TextStyle(color: Colors.blueAccent),
+                        ),
+                ),
+                const SizedBox(height: 20),
+
+                Center(
+                  child: Column(
+                    children: [
+                      const Text("Already have an account?"),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LoginScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Log In",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -333,8 +342,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       obscureText: obscure,
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Colors.white, // stay light
         hintText: hint,
+        hintStyle: const TextStyle(color: Colors.black54),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 16,
@@ -348,6 +358,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           borderSide: const BorderSide(color: Colors.black12),
         ),
       ),
+      style: const TextStyle(color: Colors.black87),
     );
   }
 }

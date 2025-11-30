@@ -227,9 +227,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(
-        context,
-      ).scaffoldBackgroundColor, // was hardcoded white
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // themed
       body: SafeArea(
         child: Stack(
           children: [
@@ -244,22 +242,26 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(width: 40), // Spacer for centering
+                      SizedBox(width: 40),
                       Text(
                         "AcadEase",
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic,
-                          color: Colors.black,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface, // themed text
                           letterSpacing: 0.5,
                         ),
                       ),
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.notifications_outlined),
-                            color: Colors.black,
+                            icon: const Icon(Icons.notifications_outlined),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface, // themed icon
                             iconSize: 26,
                             onPressed: () {
                               Navigator.push(
@@ -270,7 +272,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                               );
                             },
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           InkWell(
                             borderRadius: BorderRadius.circular(20),
                             onTap: () {
@@ -283,10 +285,12 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                             },
                             child: CircleAvatar(
                               radius: 18,
-                              backgroundColor: Colors.grey[400],
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.surface, // subtle surface
                               child: Icon(
                                 Icons.person,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 size: 20,
                               ),
                             ),
@@ -298,16 +302,20 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                 ),
 
                 // Divider line
-                Divider(color: Colors.grey[300], thickness: 1, height: 1),
+                Divider(
+                  color: Theme.of(context).dividerColor,
+                  thickness: 1,
+                  height: 1,
+                ),
 
                 // Main Content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Weather Card
+                        // Weather Card (keeps gradient; text uses white which works for both modes)
                         GestureDetector(
                           onTap: _weatherError != null
                               ? () {
@@ -320,12 +328,12 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                               : null,
                           child: Container(
                             width: double.infinity,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 24,
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
@@ -335,17 +343,19 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                             child: _isLoadingWeather
                                 ? Center(
                                     child: Padding(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                         vertical: 20,
                                       ),
-                                      child: CircularProgressIndicator(
+                                      child: const CircularProgressIndicator(
                                         color: Colors.white,
                                       ),
                                     ),
                                   )
                                 : _weatherError != null
                                 ? Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
                                     child: Row(
                                       children: [
                                         Icon(
@@ -353,12 +363,12 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                                           color: Colors.white.withOpacity(0.9),
                                           size: 32,
                                         ),
-                                        SizedBox(width: 16),
+                                        const SizedBox(width: 16),
                                         Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
+                                            const Text(
                                               "Weather Unavailable",
                                               style: TextStyle(
                                                 fontSize: 20,
@@ -384,16 +394,16 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                                     children: [
                                       Text(
                                         _getWeatherIcon(),
-                                        style: TextStyle(fontSize: 32),
+                                        style: const TextStyle(fontSize: 32),
                                       ),
-                                      SizedBox(width: 16),
+                                      const SizedBox(width: 16),
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             "${_weather!.temperature!.celsius!.round()}°C",
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 32,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white,
@@ -416,13 +426,12 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                           ),
                         ),
 
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
-                        // Prioritize Study Session Card
-                        // Replace the static Container with a dynamic builder
+                        // Prioritize Study Session Card (themed)
                         _buildStudySuggestionCard(),
 
-                        SizedBox(height: 22),
+                        const SizedBox(height: 22),
 
                         // Today's Classes Header with Date
                         Row(
@@ -433,21 +442,24 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface, // themed
                               ),
                             ),
                             Text(
                               DateFormat('MMM d, yyyy').format(DateTime.now()),
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey[600],
+                                color: Theme.of(context).colorScheme.onSurface
+                                    .withOpacity(0.6), // themed subtle
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
 
-                        SizedBox(height: 22),
+                        const SizedBox(height: 22),
 
                         // Today's Classes - Dynamic (from Firestore)
                         StreamBuilder<List<models.ScheduleEntry>>(
@@ -501,7 +513,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                                       type: entry.tag ?? '',
                                       isActive: active,
                                     ),
-                                    SizedBox(height: 12),
+                                    const SizedBox(height: 12),
                                   ],
                                 );
                               }).toList(),
@@ -509,7 +521,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                           },
                         ),
 
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -541,14 +553,28 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
       // Add bottomNavigationBar so it's always visible and not lost inside the Column
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 12,
-              offset: Offset(0, -2),
+          color: Theme.of(context).colorScheme.surface, // themed background
+          boxShadow: Theme.of(context).brightness == Brightness.dark
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).dividerColor.withOpacity(0.5),
+              width: 0.5,
             ),
-          ],
+          ),
         ),
         child: SafeArea(
           child: Padding(
@@ -620,6 +646,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
 
   // Removed legacy _buildTodayClasses method; Firestore streaming handles active/upcoming logic.
 
+  // Class card: use themed colors
   Widget _buildClassCard({
     required String time,
     required String period,
@@ -628,12 +655,28 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
     required String type,
     required bool isActive,
   }) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      padding: EdgeInsets.all(18),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Color(0xffFFFFFF),
-        border: Border.all(width: 0.1, color: Colors.grey),
+        color: theme.cardColor, // themed card color
+        border: Border.all(
+          width: 0.1,
+          color: isDark ? Colors.white10 : Colors.black12,
+        ),
         borderRadius: BorderRadius.circular(18),
+        boxShadow: isDark
+            ? [] // avoid heavy shadows in dark
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Row(
         children: [
@@ -646,30 +689,30 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: onSurface,
                 ),
               ),
               Text(
                 period,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.grey[600],
+                  color: onSurface.withOpacity(0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-          SizedBox(width: 18),
+          const SizedBox(width: 18),
           // Indicator Dot
           Container(
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: isActive ? Colors.black : Colors.grey[400],
+              color: isActive ? onSurface : onSurface.withOpacity(0.4),
               shape: BoxShape.circle,
             ),
           ),
-          SizedBox(width: 18),
+          const SizedBox(width: 18),
           // Class Details
           Expanded(
             child: Column(
@@ -680,19 +723,25 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: onSurface,
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
                   instructor,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: onSurface.withOpacity(0.6),
+                  ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: isDark ? Colors.white10 : Colors.grey[300],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -700,7 +749,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Colors.grey[800],
+                      color: onSurface,
                     ),
                   ),
                 ),
@@ -714,20 +763,26 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
 
   // Builds the dynamic "Prioritize Study Session" card using the user's schedule stream
   Widget _buildStudySuggestionCard() {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     final user = FirebaseAuth.instance.currentUser;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Color(0xF3FAFCFF),
+        color: theme.cardColor, // themed card color
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: user == null
           ? Column(
@@ -741,25 +796,29 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: onSurface,
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: isDark ? Colors.white10 : Colors.grey[100],
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.track_changes, size: 20),
+                      child: Icon(
+                        Icons.track_changes,
+                        size: 20,
+                        color: onSurface,
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   "Sign in to receive personalized study suggestions.",
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[700],
+                    color: onSurface.withOpacity(0.7),
                     height: 1.5,
                   ),
                 ),
@@ -781,41 +840,45 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: onSurface,
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.all(6),
+                          padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: isDark ? Colors.white10 : Colors.grey[100],
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.track_changes, size: 20),
+                          child: Icon(
+                            Icons.track_changes,
+                            size: 20,
+                            color: onSurface,
+                          ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       suggestion,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[700],
+                        color: onSurface.withOpacity(0.8),
                         height: 1.5,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: LinearProgressIndicator(
                         value: 0.5,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.black87,
-                        ),
+                        backgroundColor: isDark
+                            ? Colors.white10
+                            : Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(onSurface),
                         minHeight: 8,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushReplacement(
@@ -827,15 +890,17 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                       },
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: Color(0xFFE3F2FD),
+                          color: const Color(
+                            0xFFE3F2FD,
+                          ), // keep blue-tinted CTA background
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Center(
                           child: Text(
                             "View Study Plan",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF1976D2),
@@ -948,6 +1013,7 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
     String label,
     bool isActive,
   ) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -986,7 +1052,9 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
             children: [
               Icon(
                 icon,
-                color: isActive ? const Color(0xFF1976D2) : Colors.grey[600],
+                color: isActive
+                    ? const Color(0xFF1976D2)
+                    : onSurface.withOpacity(0.7),
                 size: 26,
               ),
               const SizedBox(height: 4),
@@ -994,7 +1062,9 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isActive ? const Color(0xFF1976D2) : Colors.grey[600],
+                  color: isActive
+                      ? const Color(0xFF1976D2)
+                      : onSurface.withOpacity(0.7),
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

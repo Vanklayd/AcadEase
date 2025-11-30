@@ -69,8 +69,12 @@ class _AlertsPageState extends State<AlertsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor, // themed
       body: SafeArea(
         child: Column(
           children: [
@@ -82,15 +86,23 @@ class _AlertsPageState extends State<AlertsPage> {
                 children: [
                   Text(
                     _currentTime,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: onSurface,
+                    ),
                   ),
                   Row(
                     children: [
-                      Icon(Icons.signal_cellular_4_bar, size: 16),
+                      Icon(
+                        Icons.signal_cellular_4_bar,
+                        size: 16,
+                        color: onSurface,
+                      ),
                       SizedBox(width: 4),
-                      Icon(Icons.wifi, size: 16),
+                      Icon(Icons.wifi, size: 16, color: onSurface),
                       SizedBox(width: 4),
-                      Icon(Icons.battery_full, size: 16),
+                      Icon(Icons.battery_full, size: 16, color: onSurface),
                     ],
                   ),
                 ],
@@ -101,11 +113,15 @@ class _AlertsPageState extends State<AlertsPage> {
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 'Alerts',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: onSurface,
+                ),
               ),
             ),
             // Divider
-            Container(height: 1, color: Colors.grey[300]),
+            Container(height: 1, color: theme.dividerColor),
             // Tabs
             Padding(
               padding: EdgeInsets.all(20),
@@ -130,19 +146,65 @@ class _AlertsPageState extends State<AlertsPage> {
                 })(),
                 builder: (context, snap) {
                   final alerts = snap.data ?? [];
-                  if (alerts.isEmpty) {
+
+                  DateTime now = DateTime.now();
+                  DateTime startOfWeek = now.subtract(
+                    Duration(days: now.weekday % 7),
+                  );
+                  DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
+                  bool isSameDay(DateTime a, DateTime b) =>
+                      a.year == b.year && a.month == b.month && a.day == b.day;
+
+                  final filtered =
+                      alerts.where((a) {
+                        final d = a.createdAt;
+                        switch (selectedTab) {
+                          case 'Today':
+                            return isSameDay(d, now);
+                          case 'This Week':
+                            return d.isAfter(
+                                  startOfWeek.subtract(
+                                    const Duration(seconds: 1),
+                                  ),
+                                ) &&
+                                d.isBefore(
+                                  endOfWeek.add(const Duration(days: 1)),
+                                );
+                          case 'Missed Tasks':
+                            // Treat high severity or past assignment as missed
+                            final past = d.isBefore(
+                              DateTime(now.year, now.month, now.day),
+                            );
+                            final isAssignment = a.category == 'assignment';
+                            final severe = (a.severity == 'high');
+                            return severe || (isAssignment && past);
+                          default:
+                            return true;
+                        }
+                      }).toList()..sort(
+                        (a, b) => b.createdAt.compareTo(a.createdAt),
+                      );
+
+                  if (filtered.isEmpty) {
                     return Center(
                       child: Padding(
-                        padding: EdgeInsets.all(40),
-                        child: Text('No alerts'),
+                        padding: const EdgeInsets.all(40),
+                        child: Text(
+                          selectedTab == 'Missed Tasks'
+                              ? 'No missed tasks'
+                              : selectedTab == 'This Week'
+                              ? 'No alerts this week'
+                              : 'No alerts',
+                          style: TextStyle(color: onSurface.withOpacity(0.7)),
+                        ),
                       ),
                     );
                   }
 
                   return SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
-                      children: alerts.map((a) {
+                      children: filtered.map((a) {
                         final faded = completedAlerts.contains(a.id);
                         return AnimatedOpacity(
                           duration: const Duration(milliseconds: 250),
@@ -177,14 +239,30 @@ class _AlertsPageState extends State<AlertsPage> {
             // Bottom Navigation
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: Offset(0, -2),
+                color: theme
+                    .colorScheme
+                    .background, // avoid seed-tinted blue overlay
+                boxShadow: isDark
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 10,
+                          offset: Offset(0, -2),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: Offset(0, -2),
+                        ),
+                      ],
+                border: Border(
+                  top: BorderSide(
+                    color: theme.dividerColor.withOpacity(0.5),
+                    width: 0.5,
                   ),
-                ],
+                ),
               ),
               child: SafeArea(
                 child: Padding(
@@ -250,30 +328,30 @@ class _AlertsPageState extends State<AlertsPage> {
   }
 
   Widget _buildTab(String label) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
     bool isSelected = selectedTab == label;
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            selectedTab = label;
-          });
-        },
+        onTap: () => setState(() => selectedTab = label),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isSelected ? Color(0xFF03A9F4) : Colors.grey[300]!,
+              color: isSelected ? const Color(0xFF03A9F4) : theme.dividerColor,
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
+            color: theme.cardColor,
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
-              color: isSelected ? Color(0xFF03A9F4) : Colors.grey[600],
+              color: isSelected
+                  ? const Color(0xFF03A9F4)
+                  : onSurface.withOpacity(0.7),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -444,25 +522,40 @@ class _AlertsPageState extends State<AlertsPage> {
     required String type,
     bool isOverdue = false,
   }) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor, // themed card
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
+        border: Border.all(color: isDark ? Colors.white10 : Colors.grey[300]!),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: Colors.grey[700]),
+              Icon(icon, size: 18, color: onSurface.withOpacity(0.8)),
               SizedBox(width: 8),
               Text(
                 type,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isOverdue ? Colors.red : Colors.grey[700],
+                  color: isOverdue
+                      ? Colors.redAccent
+                      : onSurface.withOpacity(0.8),
                   fontWeight: isOverdue ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
@@ -470,7 +563,10 @@ class _AlertsPageState extends State<AlertsPage> {
               Text(
                 time,
                 textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: onSurface.withOpacity(0.6),
+                ),
               ),
             ],
           ),
@@ -480,7 +576,7 @@ class _AlertsPageState extends State<AlertsPage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: isOverdue ? Colors.red : Colors.black,
+              color: isOverdue ? Colors.redAccent : onSurface,
             ),
           ),
           SizedBox(height: 8),
@@ -488,7 +584,7 @@ class _AlertsPageState extends State<AlertsPage> {
             subtitle,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[700],
+              color: onSurface.withOpacity(0.8),
               height: 1.4,
             ),
           ),
@@ -501,7 +597,7 @@ class _AlertsPageState extends State<AlertsPage> {
                   icon: Icon(Icons.check_circle_outline, size: 18),
                   label: Text('Mark as Done'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF03A9F4),
+                    backgroundColor: const Color(0xFF03A9F4),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -514,12 +610,18 @@ class _AlertsPageState extends State<AlertsPage> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _snoozeAlert(alertId),
-                  icon: Icon(Icons.access_time, size: 18),
-                  label: Text('Snooze'),
+                  icon: Icon(
+                    Icons.access_time,
+                    size: 18,
+                    color: onSurface.withOpacity(0.8),
+                  ),
+                  label: Text(
+                    'Snooze',
+                    style: TextStyle(color: onSurface.withOpacity(0.8)),
+                  ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.grey[700],
+                    side: BorderSide(color: theme.dividerColor),
                     padding: EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: Colors.grey[300]!),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -539,6 +641,7 @@ class _AlertsPageState extends State<AlertsPage> {
     String label,
     bool isActive,
   ) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -571,7 +674,9 @@ class _AlertsPageState extends State<AlertsPage> {
             children: [
               Icon(
                 icon,
-                color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                color: isActive
+                    ? Color(0xFF1976D2)
+                    : onSurface.withOpacity(0.7),
                 size: 26,
               ),
               SizedBox(height: 4),
@@ -579,7 +684,9 @@ class _AlertsPageState extends State<AlertsPage> {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                  color: isActive
+                      ? Color(0xFF1976D2)
+                      : onSurface.withOpacity(0.7),
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

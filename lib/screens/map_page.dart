@@ -29,6 +29,36 @@ class _MapPageState extends State<MapPage> {
   // traffic summaries collected by _fetchAndDrawRoute
   final List<Map<String, dynamic>> _trafficSummaries = [];
 
+  // Keep a reference to map controller
+  dynamic
+  _mapController; // replace with actual controller type (e.g., GoogleMapController)
+
+  // Minimal dark style JSON (Google Maps)
+  static const String _darkMapStyle = '''
+  [
+    {"elementType": "geometry","stylers": [{"color": "#212121"}]},
+    {"elementType": "labels.icon","stylers": [{"visibility": "off"}]},
+    {"elementType": "labels.text.fill","stylers": [{"color": "#757575"}]},
+    {"elementType": "labels.text.stroke","stylers": [{"color": "#212121"}]},
+    {"featureType": "road","elementType": "geometry","stylers": [{"color": "#383838"}]},
+    {"featureType": "road","elementType": "labels.text.fill","stylers": [{"color": "#8a8a8a"}]},
+    {"featureType": "poi.park","elementType": "geometry","stylers": [{"color": "#181818"}]},
+    {"featureType": "water","elementType": "geometry","stylers": [{"color": "#000000"}]},
+    {"featureType": "transit","stylers": [{"visibility": "off"}]}
+  ]
+  ''';
+
+  void _applyMapTheme(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    try {
+      // If using google_maps_flutter:
+      // await _mapController?.setMapStyle(isDark ? _darkMapStyle : null);
+
+      // If using JS Maps on web, call JS interop to set style (implementation-specific).
+      // Provide a hook here; no-op if controller not available.
+    } catch (_) {}
+  }
+
   @override
   void initState() {
     super.initState();
@@ -335,7 +365,17 @@ class _MapPageState extends State<MapPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _applyMapTheme(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Traffic Map')),
       body: _initialPosition == null
@@ -352,8 +392,11 @@ class _MapPageState extends State<MapPage> {
                       polylines: _polylines,
                       myLocationEnabled: true,
                       trafficEnabled: true,
-                      onMapCreated: (controller) =>
-                          _controller.complete(controller),
+                      onMapCreated: (controller) {
+                        _controller.complete(controller);
+                        _mapController = controller;
+                        _applyMapTheme(context);
+                      },
                     ),
                   ),
                 ),

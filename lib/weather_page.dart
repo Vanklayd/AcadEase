@@ -48,8 +48,12 @@ class _WeatherPageState extends State<WeatherPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor, // themed
       body: SafeArea(
         child: Column(
           children: [
@@ -61,15 +65,23 @@ class _WeatherPageState extends State<WeatherPage> {
                 children: [
                   Text(
                     DateFormat('h:mm').format(DateTime.now()),
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: onSurface,
+                    ),
                   ),
                   Row(
                     children: [
-                      Icon(Icons.signal_cellular_4_bar, size: 16),
+                      Icon(
+                        Icons.signal_cellular_4_bar,
+                        size: 16,
+                        color: onSurface,
+                      ),
                       SizedBox(width: 4),
-                      Icon(Icons.wifi, size: 16),
+                      Icon(Icons.wifi, size: 16, color: onSurface),
                       SizedBox(width: 4),
-                      Icon(Icons.battery_full, size: 16),
+                      Icon(Icons.battery_full, size: 16, color: onSurface),
                     ],
                   ),
                 ],
@@ -80,14 +92,18 @@ class _WeatherPageState extends State<WeatherPage> {
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 'Weather',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: onSurface,
+                ),
               ),
             ),
             // Divider
-            Container(height: 1, color: Colors.grey[300]),
+            Container(height: 1, color: theme.dividerColor),
             Expanded(
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator(color: onSurface))
                   : SingleChildScrollView(
                       padding: EdgeInsets.all(20),
                       child: Column(
@@ -97,8 +113,20 @@ class _WeatherPageState extends State<WeatherPage> {
                           Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.grey[50],
+                              color: theme.cardColor, // themed card
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? Colors.white10 : Colors.black12,
+                              ),
+                              boxShadow: isDark
+                                  ? []
+                                  : [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.06),
+                                        blurRadius: 12,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ],
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -113,6 +141,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
+                                        color: onSurface,
                                       ),
                                     ),
                                     Text(
@@ -122,6 +151,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
+                                        color: onSurface,
                                       ),
                                     ),
                                     SizedBox(height: 8),
@@ -131,7 +161,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                       ).format(DateTime.now()),
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.grey[600],
+                                        color: onSurface.withOpacity(0.6),
                                       ),
                                     ),
                                   ],
@@ -146,6 +176,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                       style: TextStyle(
                                         fontSize: 48,
                                         fontWeight: FontWeight.w700,
+                                        color: onSurface,
                                       ),
                                     ),
                                     Text(
@@ -154,7 +185,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                           : '-- °F',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.grey[600],
+                                        color: onSurface.withOpacity(0.6),
                                       ),
                                     ),
                                   ],
@@ -168,19 +199,24 @@ class _WeatherPageState extends State<WeatherPage> {
                             height: 400,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey[300]!),
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white10
+                                    : Colors.grey[300]!,
+                              ),
                               image: DecorationImage(
                                 image: AssetImage('assets/images/phmap.jpg'),
                                 fit: BoxFit.cover,
-                                // bias toward the right so Manila and its arrow remain visible
                                 alignment: Alignment(0.6, -0.2),
                               ),
                             ),
                             child: Container(
-                              // subtle white overlay to keep text readable without hiding map details
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                color: Colors.white.withOpacity(0.65),
+                                color: (isDark ? Colors.black : Colors.white)
+                                    .withOpacity(
+                                      isDark ? 0.55 : 0.65,
+                                    ), // themed overlay
                               ),
                               child: Center(
                                 child: Column(
@@ -197,7 +233,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                       style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.grey[700],
+                                        color: onSurface,
                                       ),
                                     ),
                                     SizedBox(height: 8),
@@ -205,7 +241,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                       _weather?.country ?? 'Philippines',
                                       style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.grey[600],
+                                        color: onSurface.withOpacity(0.7),
                                       ),
                                     ),
                                   ],
@@ -220,6 +256,7 @@ class _WeatherPageState extends State<WeatherPage> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
+                              color: onSurface,
                             ),
                           ),
                           SizedBox(height: 16),
@@ -254,8 +291,13 @@ class _WeatherPageState extends State<WeatherPage> {
                                 child: Container(
                                   padding: EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey[50],
+                                    color: theme.cardColor,
                                     borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white10
+                                          : Colors.black12,
+                                    ),
                                   ),
                                   child: Column(
                                     children: [
@@ -272,6 +314,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
+                                          color: onSurface,
                                         ),
                                       ),
                                       SizedBox(height: 4),
@@ -279,7 +322,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                         'Sunrise',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.grey[600],
+                                          color: onSurface.withOpacity(0.6),
                                         ),
                                       ),
                                     ],
@@ -291,8 +334,13 @@ class _WeatherPageState extends State<WeatherPage> {
                                 child: Container(
                                   padding: EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey[50],
+                                    color: theme.cardColor,
                                     borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white10
+                                          : Colors.black12,
+                                    ),
                                   ),
                                   child: Column(
                                     children: [
@@ -309,6 +357,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
+                                          color: onSurface,
                                         ),
                                       ),
                                       SizedBox(height: 4),
@@ -316,7 +365,7 @@ class _WeatherPageState extends State<WeatherPage> {
                                         'Sunset',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.grey[600],
+                                          color: onSurface.withOpacity(0.6),
                                         ),
                                       ),
                                     ],
@@ -332,14 +381,30 @@ class _WeatherPageState extends State<WeatherPage> {
             // Bottom Navigation
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: Offset(0, -2),
+                color: theme
+                    .colorScheme
+                    .background, // avoid seed-tinted blue overlay
+                boxShadow: isDark
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 10,
+                          offset: Offset(0, -2),
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: Offset(0, -2),
+                        ),
+                      ],
+                border: Border(
+                  top: BorderSide(
+                    color: theme.dividerColor.withOpacity(0.5),
+                    width: 0.5,
                   ),
-                ],
+                ),
               ),
               child: SafeArea(
                 child: Padding(
@@ -387,13 +452,21 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   Widget _buildForecastRow(String label, String value) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(fontSize: 16, color: Colors.grey[700])),
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, color: onSurface.withOpacity(0.7)),
+        ),
         Text(
           value,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: onSurface,
+          ),
         ),
       ],
     );
@@ -405,6 +478,7 @@ class _WeatherPageState extends State<WeatherPage> {
     String label,
     bool isActive,
   ) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -437,7 +511,9 @@ class _WeatherPageState extends State<WeatherPage> {
             children: [
               Icon(
                 icon,
-                color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                color: isActive
+                    ? Color(0xFF1976D2)
+                    : onSurface.withOpacity(0.7),
                 size: 26,
               ),
               SizedBox(height: 4),
@@ -445,7 +521,9 @@ class _WeatherPageState extends State<WeatherPage> {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                  color: isActive
+                      ? Color(0xFF1976D2)
+                      : onSurface.withOpacity(0.7),
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

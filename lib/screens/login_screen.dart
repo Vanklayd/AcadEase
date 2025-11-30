@@ -389,272 +389,286 @@ Github: https://github.com/Vanklayd/AcadEase'''),
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 20.0,
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: Theme.of(
+          context,
+        ).colorScheme.copyWith(brightness: Brightness.light),
+      ),
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20.0,
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
 
-                // LOGO
-                // Enlarged responsive logo
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final maxW = MediaQuery.of(context).size.width;
-                    // Smaller logo size
-                    final logoHeight = (maxW * 0.22).clamp(100, 160).toDouble();
-                    return Image.asset(
-                      'assets/images/logo.png',
-                      height: logoHeight,
-                      fit: BoxFit.contain,
-                    );
-                  },
-                ),
+                  // LOGO
+                  // Enlarged responsive logo
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final maxW = MediaQuery.of(context).size.width;
+                      // Smaller logo size
+                      final logoHeight = (maxW * 0.22)
+                          .clamp(100, 160)
+                          .toDouble();
+                      return Image.asset(
+                        'assets/images/logo.png',
+                        height: logoHeight,
+                        fit: BoxFit.contain,
+                      );
+                    },
+                  ),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // Content (no white container) - spaced and centered
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Center(
-                        child: Text(
-                          "Welcome Back!",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Center(
-                        child: Text(
-                          "Enter your credentials to access your account.",
-                          style: TextStyle(fontSize: 14, color: Colors.black54),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Email input
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          hintText: "Email Address",
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      // Password input
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: obscurePassword,
-                        decoration: InputDecoration(
-                          hintText: "Password",
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                  // Content (no white container) - spaced and centered
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Center(
+                          child: Text(
+                            "Welcome Back!",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
-                            onPressed: () {
-                              setState(() {
-                                obscurePassword = !obscurePassword;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
                           ),
                         ),
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      // Remember me + Forgot Password
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    rememberMe = value!;
-                                  });
-                                },
-                              ),
-                              const Text("Remember Me"),
-                            ],
+                        const SizedBox(height: 6),
+                        const Center(
+                          child: Text(
+                            "Enter your credentials to access your account.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
+                        ),
 
-                          TextButton(
-                            onPressed: _isResetting ? null : _forgotPassword,
-                            child: _isResetting
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                        const SizedBox(height: 20),
+
+                        // Email input
+                        TextField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            hintText: "Email Address",
+                            prefixIcon: const Icon(Icons.email_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 15),
+
+                        // Password input
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: obscurePassword,
+                          decoration: InputDecoration(
+                            hintText: "Password",
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  obscurePassword = !obscurePassword;
+                                });
+                              },
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Remember me + Forgot Password
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: rememberMe,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      rememberMe = value!;
+                                    });
+                                  },
+                                ),
+                                const Text("Remember Me"),
+                              ],
+                            ),
+
+                            TextButton(
+                              onPressed: _isResetting ? null : _forgotPassword,
+                              child: _isResetting
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      "Forgot Password?",
+                                      style: TextStyle(color: Colors.blue),
                                     ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Terms & Conditions row
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _acceptedTerms,
+                              onChanged: (v) =>
+                                  setState(() => _acceptedTerms = v ?? false),
+                            ),
+                            const Expanded(
+                              child: Text(
+                                'I accept the Terms & Conditions',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: _showTerms,
+                              child: const Text('View Terms'),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Login button (disabled until terms accepted)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: (_isLoading || !_acceptedTerms)
+                                ? null
+                                : _signIn,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
                                   )
                                 : const Text(
-                                    "Forgot Password?",
-                                    style: TextStyle(color: Colors.blue),
+                                    "Log In",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
                                   ),
                           ),
-                        ],
-                      ),
+                        ),
 
-                      const SizedBox(height: 10),
+                        const SizedBox(height: 20),
 
-                      // Terms & Conditions row
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _acceptedTerms,
-                            onChanged: (v) =>
-                                setState(() => _acceptedTerms = v ?? false),
-                          ),
-                          const Expanded(
-                            child: Text(
-                              'I accept the Terms & Conditions',
-                              overflow: TextOverflow.ellipsis,
+                        // Divider OR
+                        Row(
+                          children: const [
+                            Expanded(child: Divider(color: Colors.grey)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text("OR"),
                             ),
-                          ),
-                          TextButton(
-                            onPressed: _showTerms,
-                            child: const Text('View Terms'),
-                          ),
-                        ],
-                      ),
+                            Expanded(child: Divider(color: Colors.grey)),
+                          ],
+                        ),
 
-                      const SizedBox(height: 10),
+                        const SizedBox(height: 20),
 
-                      // Login button (disabled until terms accepted)
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: (_isLoading || !_acceptedTerms)
-                              ? null
-                              : _signIn,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
+                        // Google Button
+                        OutlinedButton(
+                          onPressed: () {},
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
                           ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text(
-                                  "Log In",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
+                          child: const Text("Continue with Google"),
                         ),
-                      ),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 10),
 
-                      // Divider OR
-                      Row(
-                        children: const [
-                          Expanded(child: Divider(color: Colors.grey)),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text("OR"),
+                        // Apple Button
+                        OutlinedButton(
+                          onPressed: () {},
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
                           ),
-                          Expanded(child: Divider(color: Colors.grey)),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Google Button
-                      OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
+                          child: const Text("Continue with Apple"),
                         ),
-                        child: const Text("Continue with Google"),
-                      ),
+                      ],
+                    ),
+                  ),
 
-                      const SizedBox(height: 10),
+                  const SizedBox(height: 20),
 
-                      // Apple Button
-                      OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
+                  // Bottom text
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Don't have an account? "),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SignUpScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Sign Up",
+                          style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        child: const Text("Continue with Apple"),
                       ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Bottom text
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an account? "),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SignUpScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Sign Up",
-                        style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ),

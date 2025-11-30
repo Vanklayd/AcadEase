@@ -64,8 +64,12 @@ class _SchedulePageState extends State<SchedulePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor, // themed background
       body: SafeArea(
         child: Column(
           children: [
@@ -83,15 +87,20 @@ class _SchedulePageState extends State<SchedulePage> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
+                          color: onSurface, // themed text
                         ),
                       ),
                       Row(
                         children: [
-                          Icon(Icons.signal_cellular_4_bar, size: 16),
+                          Icon(
+                            Icons.signal_cellular_4_bar,
+                            size: 16,
+                            color: onSurface,
+                          ),
                           SizedBox(width: 4),
-                          Icon(Icons.wifi, size: 16),
+                          Icon(Icons.wifi, size: 16, color: onSurface),
                           SizedBox(width: 4),
-                          Icon(Icons.battery_full, size: 20),
+                          Icon(Icons.battery_full, size: 20, color: onSurface),
                         ],
                       ),
                     ],
@@ -99,13 +108,17 @@ class _SchedulePageState extends State<SchedulePage> {
                   SizedBox(height: 20),
                   Text(
                     'Schedule',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: onSurface,
+                    ),
                   ),
                 ],
               ),
             ),
 
-            Divider(color: Colors.grey[300], thickness: 1, height: 1),
+            Divider(color: theme.dividerColor, thickness: 1, height: 1),
 
             // Week calendar
             Container(
@@ -114,7 +127,10 @@ class _SchedulePageState extends State<SchedulePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.chevron_left, color: Colors.grey[600]),
+                    icon: Icon(
+                      Icons.chevron_left,
+                      color: onSurface.withOpacity(0.7),
+                    ),
                     onPressed: () => _navigateWeek(-1),
                   ),
                   ...List.generate(5, (index) {
@@ -129,14 +145,17 @@ class _SchedulePageState extends State<SchedulePage> {
                     );
                   }),
                   IconButton(
-                    icon: Icon(Icons.chevron_right, color: Colors.grey[600]),
+                    icon: Icon(
+                      Icons.chevron_right,
+                      color: onSurface.withOpacity(0.7),
+                    ),
                     onPressed: () => _navigateWeek(1),
                   ),
                 ],
               ),
             ),
 
-            Divider(color: Colors.grey[300], thickness: 1, height: 1),
+            Divider(color: theme.dividerColor, thickness: 1, height: 1),
 
             // Schedule list from Firestore
             Expanded(
@@ -309,23 +328,29 @@ class _SchedulePageState extends State<SchedulePage> {
             MaterialPageRoute(builder: (_) => AddSchedulePage()),
           );
         },
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: theme.colorScheme.background,
+        foregroundColor: onSurface,
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: _buildBottomNavBar(),
+      bottomNavigationBar: _buildBottomNavBar(theme, onSurface, isDark),
     );
   }
 
   Widget _buildDayItem(String day, int date, bool isSelected) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       children: [
         Text(
           day,
           style: TextStyle(
             fontSize: 12,
-            color: isSelected ? Colors.blue : Colors.grey[600],
+            color: isSelected
+                ? const Color(0xFF1976D2)
+                : onSurface.withOpacity(0.7),
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -334,7 +359,7 @@ class _SchedulePageState extends State<SchedulePage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: isSelected ? Colors.blue : Colors.transparent,
+            color: isSelected ? const Color(0xFF1976D2) : Colors.transparent,
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -343,7 +368,10 @@ class _SchedulePageState extends State<SchedulePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : Colors.black,
+                // selected stays white; unselected becomes lighter in dark mode
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? onSurface.withOpacity(0.7) : Colors.black),
               ),
             ),
           ),
@@ -359,18 +387,24 @@ class _SchedulePageState extends State<SchedulePage> {
     required String tag,
     String? note,
   }) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,18 +415,26 @@ class _SchedulePageState extends State<SchedulePage> {
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: onSurface,
+                  ),
                 ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: isDark ? Colors.white10 : Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   tag,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: onSurface,
+                  ),
                 ),
               ),
             ],
@@ -400,26 +442,33 @@ class _SchedulePageState extends State<SchedulePage> {
           SizedBox(height: 8),
           Text(
             instructor,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 14, color: onSurface.withOpacity(0.7)),
           ),
           SizedBox(height: 4),
-          Text(time, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+          Text(
+            time,
+            style: TextStyle(fontSize: 14, color: onSurface.withOpacity(0.7)),
+          ),
           if (note != null) ...[
             SizedBox(height: 12),
             Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: isDark ? Colors.white10 : Colors.blue[50],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.blue[700]),
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: const Color(0xFF1976D2),
+                  ),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       note,
-                      style: TextStyle(fontSize: 13, color: Colors.blue[900]),
+                      style: TextStyle(fontSize: 13, color: onSurface),
                     ),
                   ),
                 ],
@@ -431,17 +480,25 @@ class _SchedulePageState extends State<SchedulePage> {
     );
   }
 
-  Widget _buildBottomNavBar() {
+  Widget _buildBottomNavBar(ThemeData theme, Color onSurface, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.background, // avoid seed-tinted blue overlay
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: (isDark
+                ? Colors.black.withOpacity(0.4)
+                : Colors.black.withOpacity(0.08)),
             blurRadius: 12,
             offset: Offset(0, -2),
           ),
         ],
+        border: Border(
+          top: BorderSide(
+            color: theme.dividerColor.withOpacity(0.5),
+            width: 0.5,
+          ),
+        ),
       ),
       child: SafeArea(
         child: Padding(
@@ -449,11 +506,21 @@ class _SchedulePageState extends State<SchedulePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.home_outlined, 'Home', false),
-              _buildNavItem(Icons.calendar_today, 'Schedule', true),
-              _buildNavItem(Icons.notifications_outlined, 'Alerts', false),
-              _buildNavItem(Icons.cloud_outlined, 'Weather', false),
-              _buildNavItem(Icons.settings_outlined, 'Settings', false),
+              _buildNavItem(Icons.home_outlined, 'Home', false, onSurface),
+              _buildNavItem(Icons.calendar_today, 'Schedule', true, onSurface),
+              _buildNavItem(
+                Icons.notifications_outlined,
+                'Alerts',
+                false,
+                onSurface,
+              ),
+              _buildNavItem(Icons.cloud_outlined, 'Weather', false, onSurface),
+              _buildNavItem(
+                Icons.settings_outlined,
+                'Settings',
+                false,
+                onSurface,
+              ),
             ],
           ),
         ),
@@ -461,7 +528,12 @@ class _SchedulePageState extends State<SchedulePage> {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
+  Widget _buildNavItem(
+    IconData icon,
+    String label,
+    bool isActive,
+    Color onSurface,
+  ) {
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -508,7 +580,9 @@ class _SchedulePageState extends State<SchedulePage> {
             children: [
               Icon(
                 icon,
-                color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                color: isActive
+                    ? const Color(0xFF1976D2)
+                    : onSurface.withOpacity(0.7),
                 size: 26,
               ),
               SizedBox(height: 4),
@@ -516,7 +590,9 @@ class _SchedulePageState extends State<SchedulePage> {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                  color: isActive
+                      ? const Color(0xFF1976D2)
+                      : onSurface.withOpacity(0.7),
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
