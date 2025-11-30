@@ -419,99 +419,8 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
                         SizedBox(height: 12),
 
                         // Prioritize Study Session Card
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Color(0xF3FAFCFF),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
-                                blurRadius: 12,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Prioritize Study Session",
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[100],
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(Icons.track_changes, size: 20),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              Text(
-                                "Your Math 101 midterm is next week. Plan for a 2-hour deep dive today.",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                  height: 1.5,
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              // Progress Bar
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
-                                child: LinearProgressIndicator(
-                                  value: 0.5,
-                                  backgroundColor: Colors.grey[300],
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.black87,
-                                  ),
-                                  minHeight: 8,
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const SchedulePage(),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: EdgeInsets.symmetric(vertical: 14),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFE3F2FD),
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "View Study Plan",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF1976D2),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Replace the static Container with a dynamic builder
+                        _buildStudySuggestionCard(),
 
                         SizedBox(height: 22),
 
@@ -803,6 +712,236 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
     );
   }
 
+  // Builds the dynamic "Prioritize Study Session" card using the user's schedule stream
+  Widget _buildStudySuggestionCard() {
+    final user = FirebaseAuth.instance.currentUser;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Color(0xF3FAFCFF),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: user == null
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Prioritize Study Session",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.track_changes, size: 20),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                Text(
+                  "Sign in to receive personalized study suggestions.",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            )
+          : StreamBuilder<List<models.ScheduleEntry>>(
+              stream: UserRepository.instance.streamSchedule(user.uid),
+              builder: (context, snapshot) {
+                final entries = snapshot.data ?? [];
+                final suggestion = _computeStudySuggestion(entries);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Prioritize Study Session",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.track_changes, size: 20),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      suggestion,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        height: 1.5,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: 0.5,
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.black87,
+                        ),
+                        minHeight: 8,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SchedulePage(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFE3F2FD),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "View Study Plan",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1976D2),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+    );
+  }
+
+  // Create a concise, data-driven study suggestion from today's entries
+  String _computeStudySuggestion(List<models.ScheduleEntry> entries) {
+    if (entries.isEmpty) {
+      return "No classes today. Allocate 1 hour to review any subject or work on upcoming tasks.";
+    }
+
+    // Sort by start time (string like "9:00 AM")
+    final now = DateTime.now();
+    DateTime toToday(DateTime t) =>
+        DateTime(now.year, now.month, now.day, t.hour, t.minute);
+
+    DateTime? parseTime(String timeStr) {
+      try {
+        final t = DateFormat('h:mm a').parse(timeStr);
+        return toToday(t);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    // Build a list with parsed start times
+    final parsed =
+        entries
+            .map((e) {
+              final start = parseTime(e.startTime);
+              final end = parseTime(e.endTime);
+              return (e, start, end);
+            })
+            .where((t) => t.$2 != null)
+            .toList()
+          ..sort((a, b) => a.$2!.compareTo(b.$2!));
+
+    // Prefer exam/quiz/midterm if present today
+    final examLike = parsed.firstWhere(
+      (x) => _isExamTag(x.$1.tag) || _titleHintsExam(x.$1.title),
+      orElse: () => (entries.first, null, null),
+    );
+
+    if (examLike.$2 != null &&
+        (examLike.$2!.isAfter(now) ||
+            _isClassActive(
+              "${DateFormat('h:mm a').format(examLike.$2!)} - ${examLike.$3 != null ? DateFormat('h:mm a').format(examLike.$3!) : ''}",
+            ))) {
+      final at = DateFormat('h:mm a').format(examLike.$2!);
+      final tag = examLike.$1.tag ?? 'Exam';
+      return "Your ${examLike.$1.title} $tag is later at $at. Plan for a 2-hour deep dive today.";
+    }
+
+    // Next upcoming class today
+    final next = parsed.firstWhere(
+      (x) => x.$2!.isAfter(now),
+      orElse: () =>
+          parsed.isNotEmpty ? parsed.last : (entries.first, null, null),
+    );
+
+    if (next.$2 != null && next.$2!.isAfter(now)) {
+      final at = DateFormat('h:mm a').format(next.$2!);
+      return "Next: ${next.$1.title} at $at. Spend 25 minutes reviewing notes beforehand.";
+    }
+
+    // Currently active class
+    final active = parsed.firstWhere((x) {
+      if (x.$2 == null || x.$3 == null) return false;
+      return now.isAfter(x.$2!) && now.isBefore(x.$3!);
+    }, orElse: () => (entries.first, null, null));
+    if (active.$2 != null && active.$3 != null) {
+      return "Ongoing: ${active.$1.title}. After class, review key concepts for 15 minutes.";
+    }
+
+    // Fallback
+    return "Use a 45-minute focused session to get ahead on ${entries.first.title}. ";
+  }
+
+  bool _isExamTag(String? tag) {
+    if (tag == null) return false;
+    final t = tag.toLowerCase();
+    return t.contains('exam') ||
+        t.contains('midterm') ||
+        t.contains('quiz') ||
+        t.contains('final');
+  }
+
+  bool _titleHintsExam(String title) {
+    final t = title.toLowerCase();
+    return t.contains('exam') ||
+        t.contains('midterm') ||
+        t.contains('quiz') ||
+        t.contains('final');
+  }
+
+  // Reintroduce bottom nav item builder used by bottomNavigationBar
   Widget _buildNavItem(
     BuildContext context,
     IconData icon,
@@ -812,27 +951,28 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
     return Expanded(
       child: InkWell(
         onTap: () {
-          if (label == "Schedule" && !isActive) {
+          if (isActive) return;
+          if (label == "Schedule") {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => SchedulePage()),
+              MaterialPageRoute(builder: (context) => const SchedulePage()),
             );
-          } else if (label == "Alerts" && !isActive) {
+          } else if (label == "Alerts") {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => AlertsPage()),
+              MaterialPageRoute(builder: (context) => const AlertsPage()),
             );
-          } else if (label == "Weather" && !isActive) {
+          } else if (label == "Weather") {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => WeatherPage()),
+              MaterialPageRoute(builder: (context) => const WeatherPage()),
             );
-          } else if (label == "Home" && !isActive) {
+          } else if (label == "Home") {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => AcadEaseHome()),
+              MaterialPageRoute(builder: (context) => const AcadEaseHome()),
             );
-          } else if (label == "Settings" && !isActive) {
+          } else if (label == "Settings") {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const SettingsPage()),
@@ -840,21 +980,21 @@ class _AcadEaseHomeState extends State<AcadEaseHome> {
           }
         },
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
-                color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                color: isActive ? const Color(0xFF1976D2) : Colors.grey[600],
                 size: 26,
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: isActive ? Color(0xFF1976D2) : Colors.grey[600],
+                  color: isActive ? const Color(0xFF1976D2) : Colors.grey[600],
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
