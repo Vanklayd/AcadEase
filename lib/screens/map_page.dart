@@ -48,15 +48,18 @@ class _MapPageState extends State<MapPage> {
   ]
   ''';
 
-  void _applyMapTheme(BuildContext context) {
+  void _applyMapTheme(BuildContext context) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     try {
-      // If using google_maps_flutter:
-      // await _mapController?.setMapStyle(isDark ? _darkMapStyle : null);
-
-      // If using JS Maps on web, call JS interop to set style (implementation-specific).
-      // Provide a hook here; no-op if controller not available.
+      final controller = await _controller.future;
+      await controller.setMapStyle(isDark ? _darkMapStyle : null);
     } catch (_) {}
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _applyMapTheme(context);
   }
 
   @override
@@ -191,6 +194,45 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  // Helper: reverse-geocode LatLng to a readable place/road name
+  Future<String> _reverseGeocode(double lat, double lng) async {
+    final apiKey = GoogleApi.apiKey;
+    if (apiKey.isEmpty || apiKey.contains('YOUR_GOOGLE_API_KEY')) {
+      return '(${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)})';
+    }
+    final uri = Uri.parse(
+      'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$apiKey',
+    );
+    try {
+      final res = await http.get(uri).timeout(const Duration(seconds: 8));
+      if (res.statusCode != 200) {
+        return '(${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)})';
+      }
+      final data = json.decode(res.body) as Map<String, dynamic>;
+      final results = (data['results'] as List?) ?? [];
+      if (results.isEmpty) {
+        return '(${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)})';
+      }
+      // Prefer street/route type if available; else use formatted_address
+      final first = results.first as Map<String, dynamic>;
+      final formatted = (first['formatted_address'] as String?) ?? '';
+      // Attempt to extract 'route' short name from address_components
+      final comps = (first['address_components'] as List?) ?? [];
+      final routeComp = comps.cast<Map<String, dynamic>?>().firstWhere(
+        (c) => ((c?['types'] as List?) ?? []).contains('route'),
+        orElse: () => null,
+      );
+      final routeName = routeComp?['short_name'] as String?;
+      return routeName?.isNotEmpty == true
+          ? routeName!
+          : (formatted.isNotEmpty
+                ? formatted
+                : '(${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)})');
+    } catch (_) {
+      return '(${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)})';
+    }
+  }
+
   Future<void> _fetchAndDrawRoute(
     LatLng origin,
     LatLng destination,
@@ -287,15 +329,15 @@ class _MapPageState extends State<MapPage> {
       int score; // heavy=3, moderate=2, light=1
       Color color;
       if (ratio > 1.4) {
-        level = 'Heavy';
+        level = 'Heavy traffic';
         score = 3;
         color = Colors.red;
       } else if (ratio > 1.15) {
-        level = 'Moderate';
+        level = 'Moderate traffic';
         score = 2;
         color = Colors.orange;
       } else {
-        level = 'Light';
+        level = 'Light traffic';
         score = 1;
         color = Colors.green;
       }
@@ -310,30 +352,36 @@ class _MapPageState extends State<MapPage> {
 
       final etaText =
           '${(durationInTraffic / 60).toStringAsFixed(0)} min (traffic)';
-      final coord =
-          '(${destination.latitude.toStringAsFixed(3)}, ${destination.longitude.toStringAsFixed(3)})';
-      final markerId = MarkerId('dest_$id');
+      final lat = destination.latitude;
+      final lng = destination.longitude;
+      final coord = '(${lat.toStringAsFixed(3)}, ${lng.toStringAsFixed(3)})';
 
+      // Reverse-geocode to a place/road name
+      final placeName = await _reverseGeocode(lat, lng);
+
+      final markerId = MarkerId('dest_$id');
       setState(() {
         _polylines.add(polyline);
-        // add a marker for the destination with descriptive info window
         _markers.add(
           Marker(
             markerId: markerId,
             position: destination,
-            infoWindow: InfoWindow(title: '$level route', snippet: etaText),
+            infoWindow: InfoWindow(
+              title: level,
+              snippet: '$placeName • $etaText',
+            ),
           ),
         );
       });
 
-      // store summary for display including numeric lat/lng and marker id
       _trafficSummaries.add({
         'level': level,
         'score': score,
         'etaText': etaText,
-        'coord': coord,
-        'lat': destination.latitude,
-        'lng': destination.longitude,
+        'coord': coord, // keep as fallback
+        'place': placeName, // new: readable name
+        'lat': lat,
+        'lng': lng,
         'markerId': markerId.value,
       });
       if (mounted) setState(() {});
@@ -362,12 +410,6 @@ class _MapPageState extends State<MapPage> {
         );
       }
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _applyMapTheme(context);
   }
 
   @override
@@ -419,114 +461,136 @@ class _MapPageState extends State<MapPage> {
                   minChildSize: 0.08,
                   maxChildSize: 0.6,
                   builder: (context, scrollController) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).canvasColor,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(16),
-                        ),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black26, blurRadius: 8),
-                        ],
+                    return ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
                       ),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 6,
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Nearby Traffic',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: theme.canvasColor,
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black26, blurRadius: 8),
+                          ],
+                        ),
+                        child: SingleChildScrollView(
+                          controller: scrollController, // critical for dragging
+                          child: Column(
+                            children: [
+                              // Handle
+                              Container(
+                                width: 40,
+                                height: 6,
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: theme.dividerColor,
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _recommendations.clear();
-                                    });
-                                  },
-                                  child: const Text('Clear'),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                              vertical: 4.0,
-                            ),
-                            child: Text(
-                              _debugInfo.isEmpty ? 'No debug info' : _debugInfo,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[700],
                               ),
-                            ),
-                          ),
-                          Expanded(
-                            child: _recommendations.isEmpty
-                                ? const Center(
+                              // Header actions
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Nearby Traffic',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _recommendations.clear();
+                                          _trafficSummaries.clear();
+                                          _polylines.clear();
+                                          _markers.removeWhere(
+                                            (m) => m.markerId.value.startsWith(
+                                              'dest_',
+                                            ),
+                                          );
+                                        });
+                                      },
+                                      child: const Text('Clear'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Debug
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 4.0,
+                                ),
+                                child: Text(
+                                  _debugInfo.isEmpty
+                                      ? 'No debug info'
+                                      : _debugInfo,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: onSurface.withOpacity(0.7),
+                                  ),
+                                ),
+                              ),
+                              // List content (or empty state)
+                              if (_trafficSummaries.isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
                                     child: Text(
                                       'No traffic data yet. Tap the traffic icon to analyze.',
                                     ),
-                                  )
-                                : ListView.builder(
-                                    controller: scrollController,
-                                    itemCount: _trafficSummaries.length,
-                                    itemBuilder: (context, idx) {
-                                      final t = _trafficSummaries[idx];
-                                      final level = t['level'] as String;
-                                      final eta = t['etaText'] as String;
-                                      final coord = t['coord'] as String;
-                                      IconData icon;
-                                      if (level == 'Heavy') {
-                                        icon = Icons.directions_car;
-                                      } else if (level == 'Moderate') {
-                                        icon = Icons.directions_car_filled;
-                                      } else {
-                                        icon = Icons.directions_transit;
-                                      }
-                                      return ListTile(
-                                        leading: Icon(icon),
-                                        title: Text('$level — $eta'),
-                                        subtitle: Text(coord),
-                                        onTap: () async {
-                                          final lat = t['lat'] as double;
-                                          final lng = t['lng'] as double;
-                                          final controller =
-                                              await _controller.future;
-                                          await controller.animateCamera(
-                                            CameraUpdate.newLatLngZoom(
-                                              LatLng(lat, lng),
-                                              15.0,
-                                            ),
-                                          );
-                                          try {
-                                            await controller
-                                                .showMarkerInfoWindow(
-                                                  MarkerId(
-                                                    t['markerId'] as String,
-                                                  ),
-                                                );
-                                          } catch (_) {}
-                                        },
-                                      );
-                                    },
                                   ),
+                                )
+                              else
+                                ..._trafficSummaries.map((t) {
+                                  final level = t['level'] as String;
+                                  final eta = t['etaText'] as String;
+                                  final place =
+                                      (t['place'] as String?) ??
+                                      (t['coord'] as String);
+                                  IconData icon;
+                                  Color iconColor;
+                                  if (level.startsWith('Heavy')) {
+                                    icon = Icons.report;
+                                    iconColor = Colors.red;
+                                  } else if (level.startsWith('Moderate')) {
+                                    icon = Icons.warning_amber_rounded;
+                                    iconColor = Colors.orange;
+                                  } else {
+                                    icon = Icons.check_circle_outline;
+                                    iconColor = Colors.green;
+                                  }
+                                  return ListTile(
+                                    leading: Icon(icon, color: iconColor),
+                                    title: Text('$level — $eta'),
+                                    subtitle: Text(place),
+                                    onTap: () async {
+                                      final lat = t['lat'] as double;
+                                      final lng = t['lng'] as double;
+                                      final controller =
+                                          await _controller.future;
+                                      await controller.animateCamera(
+                                        CameraUpdate.newLatLngZoom(
+                                          LatLng(lat, lng),
+                                          15.0,
+                                        ),
+                                      );
+                                      try {
+                                        await controller.showMarkerInfoWindow(
+                                          MarkerId(t['markerId'] as String),
+                                        );
+                                      } catch (_) {}
+                                    },
+                                  );
+                                }),
+                              const SizedBox(height: 12),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     );
                   },
